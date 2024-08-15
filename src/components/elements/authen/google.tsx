@@ -25,14 +25,16 @@ const Google = () => {
 
   return (
     <div className="flex flex-col items-center">
-      <div   className="flex bg-blue-600 hover:bg-blue-800 text-white">
-        <img className='w-[40px] px-5' src="src\components\config\asset\Google.png" alt="" />
-      <Button 
-       
-        onClick={handleGoogleSignIn}
-      >
-        Sign in with Google
-      </Button></div>
+      <div className="flex items-center justify-center my-auto text-black border rounded-md px-5 mt-2 border-black">
+        <img className="w-[30px] h-[30px] mr-2" src="src/components/config/asset/Google.png" alt="Google logo" />
+        <Button 
+          className="text-black bg-transparent hover:bg-transparent"
+          onClick={handleGoogleSignIn}
+        >
+          Sign in with Google
+        </Button>
+      </div>
+
       {error && (
         <p className="mt-2 text-red-500">
           Error: {error}

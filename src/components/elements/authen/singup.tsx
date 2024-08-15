@@ -66,7 +66,7 @@ const Register = () => {
   });
 
   const onSubmit = (formData: any) => {
-    // Xử lý dữ liệu khi form hợp lệ
+    
     console.log(formData);
   };
 

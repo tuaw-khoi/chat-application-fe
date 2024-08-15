@@ -34,7 +34,6 @@ const TabAuthen = () => {
       <TabsContent value="singup">
         <Card>
           <Register/>
-          <div className="bg-gray-200 h-5 ">hello</div>
         </Card>
       </TabsContent>
     </Tabs>

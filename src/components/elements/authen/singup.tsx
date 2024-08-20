@@ -20,6 +20,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import useAuth from "@/hooks/useAuth";
 
 // Định nghĩa schema xác thực với zod
 const formSchema = z
@@ -40,19 +41,17 @@ const formSchema = z
     password2: z
       .string()
       .min(6, { message: "Password must be at least 6 characters." }),
-    fullName: z.string().min(2, {
+    fullname: z.string().min(2, {
       message: "Full name must be at least 2 characters.",
     }),
   })
-  .refine(
-    (values) => values.password === values.password2,
-    {
-      message: "Passwords must match!",
-      path: ["password2"],
-    }
-  );
+  .refine((values) => values.password === values.password2, {
+    message: "Passwords must match!",
+    path: ["password2"],
+  });
 
 const Register = () => {
+  const { register } = useAuth();
   const form = useForm({
     mode: "onChange",
     resolver: zodResolver(formSchema),
@@ -60,14 +59,24 @@ const Register = () => {
       username: "",
       email: "",
       password: "",
-      fullName: "",
+      fullname: "",
       password2: "",
     },
   });
 
   const onSubmit = (formData: any) => {
-    
-    console.log(formData);
+    const userRegister = {
+      username: formData.username,
+      fullname: formData.fullname,
+      password: formData.password,
+      email: formData.email,
+    };
+    register.mutate(userRegister);
+    form.setValue("username", "");
+    form.setValue("email", "");
+    form.setValue("password", "");
+    form.setValue("fullname", "");
+    form.setValue("password2", "");
   };
 
   return (
@@ -85,7 +94,7 @@ const Register = () => {
           <CardContent className="space-y-4">
             <FormField
               control={form.control}
-              name="fullName"
+              name="fullname"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Họ Và Tên</FormLabel>
@@ -107,11 +116,7 @@ const Register = () => {
                 <FormItem>
                   <FormLabel>Email</FormLabel>
                   <FormControl>
-                    <Input
-                      className="h-10"
-                      placeholder="Email"
-                      {...field}
-                    />
+                    <Input className="h-10" placeholder="Email" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>

@@ -1,129 +1,65 @@
+// hooks/useFriend.ts
+import { useState, useEffect } from "react";
+import { io, Socket } from "socket.io-client";
 import Cookies from "js-cookie";
-import AxiosClient from "@/service/AxiosClient";
-import {  TUser, TUserLogin } from "@/types/user";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-import useAuthenStore from "@/store/authenStore";
-import { useNavigate } from "react-router-dom";
-const useAuth = () => {
-  const navigate = useNavigate();
-  const queryClient = useQueryClient();
-  const { setIsAdmin, setAuthen } = useAuthenStore();
+import useFriendStore from "@/store/friendStore";
 
-  const login = useMutation({
-    mutationFn: async (user: TUserLogin) => {
-      const response = await AxiosClient.post("/auth/login", user);
-      return response.data;
-    },
+interface FriendResult {
+  id: string;
+  fullname: string;
+  img: string;
+}
 
-    onSuccess: async (data) => {
-      const token = data.accessToken;
-      const refreshToken = data.refreshToken;
-      const user = data.userReturn;
-      Cookies.set("token", token, {
-        secure: true,
-        sameSite: "strict",
-        expires: 1,
-      });
-      Cookies.set("refreshToken", refreshToken, {
-        secure: true,
-        sameSite: "strict",
-        expires: 7,
-      });
-      Cookies.set("user", JSON.stringify(user), {
-        secure: true,
-        sameSite: "strict",
-        expires: 1,
-      });
-      if (user?.role == "ADMIN") {
-        setIsAdmin(1);
-        setAuthen(true);
-        navigate("/admin");
-      } else {
-        setIsAdmin(0);
-        setAuthen(true);
-        navigate("/home");
+const useFriend = () => {
+  const [loading, setLoading] = useState<boolean>(false);
+  const [query, setQuery] = useState<string>("");
+  const [socket, setSocket] = useState<Socket | null>(null);
+  const userCookie = Cookies.get("user");
+  const storedUser = userCookie ? JSON.parse(userCookie) : null;
+  const { setFriendsResult } = useFriendStore();
+  useEffect(() => {
+    const newSocket = io("http://localhost:3002");
+    setSocket(newSocket);
+
+    return () => {
+      newSocket.disconnect();
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!socket) return;
+
+    const handleSearchFriendsResult = (data: FriendResult[] | string) => {
+      if (data === "name") {
+        setFriendsResult([]);
+        return;
       }
-    },
-    onError: (error: any) => {
-      console.error("Login error:", error);
-    },
-  });
+      setFriendsResult(data);
+      setLoading(false);
+    };
 
-  const register = useMutation({
-    mutationFn: async (user: TUser) => {
-      const { fullname, password, email, username } = user;
-      const newUser = { fullname, password, email, username };
-      console.log(newUser);
-      const response = await AxiosClient.post("/auth/register", newUser);
-      console.log(response);
-      return response.data;
-    },
+    socket.on("searchFriendsResult", handleSearchFriendsResult);
 
-    onSuccess: () => {},
+    return () => {
+      socket.off("searchFriendsResult", handleSearchFriendsResult);
+    };
+  }, [socket]);
 
-    onError: (error: any) => {
-      console.error("Registration error:", error);
-    },
-  });
-
-  const loginWithGoogle = useMutation({
-    mutationFn: async () => {
-      const response = await AxiosClient.post("/auth/firebase-login");
-      return response.data;
-    },
-
-    onSuccess: async (data) => {
-      const token = data.accessToken;
-      const refreshToken = data.refreshToken;
-      const user = data.userReturn;
-      Cookies.set("token", token, {
-        secure: true,
-        sameSite: "strict",
-        expires: 1,
-      });
-      Cookies.set("refreshToken", refreshToken, {
-        secure: true,
-        sameSite: "strict",
-        expires: 7,
-      });
-      Cookies.set("user", JSON.stringify(user), {
-        secure: true,
-        sameSite: "strict",
-        expires: 1,
-      });
-      if (user?.role == "ADMIN") {
-        setIsAdmin(1);
-        setAuthen(true);
-        navigate("/admin");
-      } else {
-        setIsAdmin(0);
-        setAuthen(true);
-        navigate("/home");
-      }
-    },
-
-    onError: (error: any) => {
-      console.error("Google Login error:", error);
-    },
-  });
-
-  const refreshLogin = async () => {
-    try {
-      const response = await AxiosClient.post(`auth/refresh-login`);
-      return response?.data?.userReturn;
-    } catch (error) {
-      console.error("Error:", error);
-      throw error;
+  const searchFriends = (query: string) => {
+    // console.log(query);
+    if (socket) {
+      setLoading(true);
+      socket.emit("searchFriends", { query, userId: storedUser.id });
     }
-  };  
-
-
-  return {
-    login,
-    register,
-    loginWithGoogle,
-    refreshLogin,
   };
+
+  useEffect(() => {
+    if (query) {
+      searchFriends(query);
+    }
+  }, [query]);
+
+  return { loading, setQuery, searchFriends };
 };
 
-export default useAuth;
+export default useFriend;

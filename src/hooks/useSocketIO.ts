@@ -64,6 +64,11 @@ const useSocket = () => {
     }
   };
 
+  const searchFriends = (query: string, userId: string, callback: (data: any) => void) => {
+    if (socket) {
+      socket.emit("searchFriends", { query, userId }, callback);
+    }
+  };
   return {
     socket,
     connected,

@@ -1,6 +1,6 @@
 import Cookies from "js-cookie";
 import AxiosClient from "@/service/AxiosClient";
-import {  TUser, TUserLogin } from "@/types/user";
+import { TUser, TUserLogin } from "@/types/user";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import useAuthenStore from "@/store/authenStore";
 import { useNavigate } from "react-router-dom";
@@ -115,8 +115,7 @@ const useAuth = () => {
       console.error("Error:", error);
       throw error;
     }
-  };  
-
+  };
 
   return {
     login,

@@ -3,6 +3,7 @@ import { io, Socket } from "socket.io-client";
 import { useEffect, useState } from "react";
 import AxiosClient from "@/service/AxiosClient";
 import useMessageStore from "@/store/messageStore";
+import messageStore from "@/store/messageStore";
 
 type Message = {
   id: number;
@@ -15,7 +16,7 @@ const useChat = (roomId: number, userId: string) => {
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const [socket, setSocket] = useState<Socket | null>(null);
-
+  const { setLastedMessage } = messageStore();
   const { addMessage, setMessages } = useMessageStore();
 
   useEffect(() => {
@@ -72,17 +73,12 @@ const useChat = (roomId: number, userId: string) => {
     if (content.trim() === "") return;
 
     try {
-      await AxiosClient.post(`/messages`, {
-        content,
-        senderId: userId,
-        roomId,
-      });
-
       socket?.emit("sendMessage", {
         content,
         senderId: userId,
         roomId,
       });
+      setLastedMessage(content);
     } catch (err) {
       console.error("Failed to send message:", err);
     }

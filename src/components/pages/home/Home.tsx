@@ -7,54 +7,53 @@ import Navbar from "@/components/elements/home/layout/Navbar";
 import Directory from "@/components/elements/home/layout/Directory";
 import Chat from "@/components/elements/home/chat/Chat";
 import Notification from "@/components/elements/home/chat/Notification";
-import { useState } from "react";
-import io from "socket.io-client";
+
 
 const Home = () => {
-  // const { setAuthen, setIsAdmin } = useAuthenStore();
-  // const navigate = useNavigate();
-  // const { refreshLogin } = useAuth();
+  const { setAuthen, setIsAdmin } = useAuthenStore();
+  const navigate = useNavigate();
+  const { refreshLogin } = useAuth();
 
-  // useEffect(() => {
-  //   const fetchUserData = async () => {
-  //     const token = Cookies.get("token");
+  useEffect(() => {
+    const fetchUserData = async () => {
+      const token = Cookies.get("token");
 
-  //     if (!token) {
-  //       navigate("/");
-  //       return;
-  //     }
+      if (!token) {
+        navigate("/");
+        return;
+      }
 
-  //     try {
-  //       const user = await refreshLogin();
-  //       if (!user) {
-  //         navigate("/");
-  //         return;
-  //       }
+      try {
+        const user = await refreshLogin();
+        if (!user) {
+          navigate("/");
+          return;
+        }
 
-  //       Cookies.set("user", JSON.stringify(user), {
-  //         secure: true,
-  //         sameSite: "strict",
-  //         expires: 1,
-  //       });
+        Cookies.set("user", JSON.stringify(user), {
+          secure: true,
+          sameSite: "strict",
+          expires: 1,
+        });
 
-  //       // Kiểm tra vai trò người dùng và điều hướng
-  //       if (user.role === "ADMIN") {
-  //         setIsAdmin(1);
-  //         setAuthen(true);
-  //         navigate("/admin");
-  //       } else if (user.role === "USER") {
-  //         setAuthen(true);
-  //         setIsAdmin(0);
-  //         return;
-  //       }
-  //     } catch (error) {
-  //       console.error("Error refreshing login:", error);
-  //       navigate("/");
-  //     }
-  //   };
+        // Kiểm tra vai trò người dùng và điều hướng
+        if (user.role === "ADMIN") {
+          setIsAdmin(1);
+          setAuthen(true);
+          navigate("/admin");
+        } else if (user.role === "USER") {
+          setAuthen(true);
+          setIsAdmin(0);
+          return;
+        }
+      } catch (error) {
+        console.error("Error refreshing login:", error);
+        navigate("/");
+      }
+    };
 
-  //   fetchUserData();
-  // }, [navigate, refreshLogin, setAuthen, setIsAdmin]);
+    fetchUserData();
+  }, [navigate, refreshLogin, setAuthen, setIsAdmin]);
 
   // const roomId = "2"; // ID của phòng chat
   // const socket = io("http://localhost:3002"); // URL của server Socket.io

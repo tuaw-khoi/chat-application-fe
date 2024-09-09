@@ -7,7 +7,7 @@ import Admin from "./components/pages/admin/Admin";
 const router = createBrowserRouter([
   {
     path: "/",
-    element: <Home />,
+    element: <Authentication />,
     // children: [{ path: "/login", element: <Home /> }],
   },
   {

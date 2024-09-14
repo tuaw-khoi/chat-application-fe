@@ -17,7 +17,6 @@ const AccessPage = ({ element }: { element: JSX.Element }) => {
       }
       try {
         const user = await refreshLogin();
-        console.log(user);
         Cookies.set("user", JSON.stringify(user), {
           secure: true,
           sameSite: "strict",

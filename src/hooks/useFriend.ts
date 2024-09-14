@@ -8,6 +8,7 @@ interface FriendResult {
   id: string;
   fullname: string;
   img: string;
+  roomId?: string;
 }
 
 const useFriend = () => {

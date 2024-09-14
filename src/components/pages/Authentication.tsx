@@ -4,8 +4,6 @@ import { useNavigate } from "react-router-dom";
 import useAuth from "@/hooks/useAuth";
 import Cookies from "js-cookie";
 import useAuthenStore from "@/store/authenStore";
-import Google from "../elements/google";
-import Login from "../elements/authen/login";
 
 const Authentication = () => {
   const { setAuthen, setIsAdmin, authen, isAdmin } = useAuthenStore();

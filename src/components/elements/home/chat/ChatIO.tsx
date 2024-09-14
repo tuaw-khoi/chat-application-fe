@@ -1,33 +1,62 @@
-// ChatIO.tsx
 import { useForm } from "react-hook-form";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import useRoomStore from "@/store/roomStore";
 import useChat from "@/hooks/useChat";
 import useMessageStore from "@/store/messageStore";
 import Cookies from "js-cookie";
+import useChatStore from "@/store/chatStore";
+import useNewChat from "@/hooks/useNewChat";
+import roomStore from "@/store/roomStore";
+import { useEffect } from "react";
+
+// Định nghĩa kiểu dữ liệu cho tin nhắn
+interface MessageForm {
+  message: string;
+}
 
 const ChatIO = () => {
   const userCookie = Cookies.get("user");
   const storedUser = userCookie ? JSON.parse(userCookie) : null;
   const userId = storedUser?.id;
-  const { rooms } = useRoomStore();
-  const currentRoomId = rooms.length > 0 ? rooms[0].roomId : 2;
+  const { roomIsChoiced } = roomStore();
 
+  const { chatIsChoiced } = useChatStore();
   const { messages } = useMessageStore();
-  const { isLoading, error, sendMessage } = useChat(currentRoomId, userId);
-  const { register, handleSubmit, reset } = useForm();
-  const onSubmit = (data: any) => {
-    sendMessage(data.message);
+  const { register, handleSubmit, reset } = useForm<MessageForm>();
+
+  const roomId = roomIsChoiced?.roomId ?? -1;
+
+  // Dùng các hooks ngoài câu lệnh điều kiện
+  const chatResult = useChat(chatIsChoiced?.roomId ?? -1, userId);
+  const newChatResult = useNewChat(userId, chatIsChoiced?.id ?? "");
+  const roomChatResult = useChat(roomId, userId);
+
+  let sendMessage: ((message: string) => void) | undefined;
+  let sendNewMessage: ((message: string) => void) | undefined;
+
+  // Logic xác định sendMessage và sendNewMessage
+  if (roomIsChoiced === null) {
+    sendMessage = chatIsChoiced?.roomId ? chatResult.sendMessage : undefined;
+    sendNewMessage =
+      chatIsChoiced?.roomId === null ? newChatResult.sendNewMessage : undefined;
+  } else {
+    sendMessage = roomChatResult.sendMessage;
+  }
+  // Xử lý gửi tin nhắn
+  const onSubmit = (data: MessageForm) => {
+    if (sendMessage) {
+      sendMessage(data.message);
+    } else if (sendNewMessage) {
+      sendNewMessage(data.message);
+    }
     reset();
   };
 
-  if (isLoading) return <div>Loading messages...</div>;
-  if (error) return <div>{error}</div>;
+  useEffect(() => {}, [messages]);
 
   return (
-    <div className="p-4 bg-gray-100  flex flex-col h-screen">
-      <div className="flex-grow  overflow-y-auto mb-4 pr-2 bg-white shadow-lg rounded">
+    <div className="p-4 bg-gray-100 flex flex-col h-screen">
+      <div className="flex-grow overflow-y-auto mb-4 pr-2 bg-white shadow-lg rounded">
         {messages.length > 0 ? (
           messages.map((message) => (
             <div
@@ -53,7 +82,7 @@ const ChatIO = () => {
         <Input
           type="text"
           placeholder="Aa"
-          {...register("message")}
+          {...register("message", { required: true })}
           className="flex-grow"
         />
         <Button type="submit">Gửi</Button>

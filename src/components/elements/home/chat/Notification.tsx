@@ -11,6 +11,7 @@ const Notification = () => {
   const { isFocused, setFocus } = focusStore();
   const handleBlur = () => {
     setFocus(false);
+
   };
 
   return (
@@ -32,7 +33,7 @@ const Notification = () => {
         ) : (
           ""
         )}
-        <SearchChat />
+        <SearchChat  />
       </div>
       <ChatLabel friendsResult={friendsResult} />
     </div>

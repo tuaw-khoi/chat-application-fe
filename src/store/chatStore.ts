@@ -8,18 +8,27 @@ interface Message {
   roomId: string;
 }
 
-// Định nghĩa kiểu dữ liệu cho store
+export interface chatFriend {
+  id: string;
+  fullname: string;
+  img: string;
+  roomId?: number;
+}
+
+
 interface ChatStore {
   messages: Message[];
+  chatIsChoiced: chatFriend | null;
+  setChat: (chat: chatFriend) => void;
   setMessages: (messages: Message[]) => void;
   addMessage: (message: Message) => void;
 }
 
-
-
 // Tạo store với Zustand
 const useChatStore = create<ChatStore>((set) => ({
   messages: [],
+  chatIsChoiced: null,
+  setChat: (chatId) => set({ chatIsChoiced: chatId }),
   setMessages: (messages) => set({ messages }),
   addMessage: (message) =>
     set((state) => ({ messages: [...state.messages, message] })),

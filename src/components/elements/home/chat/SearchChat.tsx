@@ -4,15 +4,20 @@ import { useForm } from "react-hook-form";
 import useFriend from "@/hooks/useFriend";
 import focusStore from "@/store/focusStore";
 import blurStore from "@/store/blurStore";
+import roomStore from "@/store/roomStore";
 
 interface SearchFormInput {
   query: string;
 }
+type searchChat = {
+  reset: () => void;
+};
 
 const SearchChat = () => {
   const { searchFriends } = useFriend();
-  const { setFocus } = focusStore();
+  const { isFocused, setFocus } = focusStore();
   const { isBlur, setBlur } = blurStore();
+  const { setRoom } = roomStore();
   const { register, handleSubmit, setValue, getValues } =
     useForm<SearchFormInput>();
   const query = getValues("query");
@@ -26,6 +31,14 @@ const SearchChat = () => {
       setBlur(false);
     }
   }, [isBlur]);
+  useEffect(() => {
+    if (isFocused === false) {
+      setValue("query", "");
+    }
+    if (isFocused === true) {
+      setRoom(null);
+    }
+  }, [isFocused]);
   const onSubmit = (data: SearchFormInput) => {
     const { query } = data;
     searchFriends(query);

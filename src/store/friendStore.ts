@@ -5,6 +5,7 @@ interface FriendResult {
   id: string;
   fullname: string;
   img: string;
+  roomId?: number;
 }
 
 // Định nghĩa kiểu dữ liệu cho store

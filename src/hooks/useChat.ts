@@ -3,22 +3,13 @@ import { io, Socket } from "socket.io-client";
 import { useEffect, useState } from "react";
 import AxiosClient from "@/service/AxiosClient";
 import useMessageStore from "@/store/messageStore";
-import messageStore from "@/store/messageStore";
-
-type Message = {
-  id: number;
-  content: string;
-  senderId: string;
-  roomId: number;
-};
-
+import { useQueryClient } from "@tanstack/react-query";
 const useChat = (roomId: number, userId: string) => {
+  const queryClient = useQueryClient();
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const [socket, setSocket] = useState<Socket | null>(null);
-  const { setLastedMessage } = messageStore();
   const { addMessage, setMessages } = useMessageStore();
-
   useEffect(() => {
     const newSocket = io("http://localhost:3002");
     setSocket(newSocket);
@@ -30,7 +21,6 @@ const useChat = (roomId: number, userId: string) => {
 
   useEffect(() => {
     if (!socket) return;
-
     socket.emit("joinRoom", roomId);
 
     const handleNewMessage = (message: any) => {
@@ -39,14 +29,19 @@ const useChat = (roomId: number, userId: string) => {
         content: message.content,
         senderId: message.sender,
         roomId: message.room.id,
+        sent_at: message.sent_at,
       };
+      queryClient.invalidateQueries({ queryKey: ["roomsForUser"] });
       if (newMessage.roomId === roomId) {
         addMessage(newMessage);
       }
     };
 
     socket.on("newMessage", handleNewMessage);
-
+    socket.on("errorNewChat", (error) => {
+      console.error("Error received from server:", error);
+      alert(`Error: ${error.message}`);
+    });
     return () => {
       socket.off("newMessage", handleNewMessage);
     };
@@ -78,7 +73,6 @@ const useChat = (roomId: number, userId: string) => {
         senderId: userId,
         roomId,
       });
-      setLastedMessage(content);
     } catch (err) {
       console.error("Failed to send message:", err);
     }

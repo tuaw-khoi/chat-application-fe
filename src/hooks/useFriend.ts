@@ -2,14 +2,7 @@
 import { useState, useEffect } from "react";
 import { io, Socket } from "socket.io-client";
 import Cookies from "js-cookie";
-import useFriendStore from "@/store/friendStore";
-
-interface FriendResult {
-  id: string;
-  fullname: string;
-  img: string;
-  roomId?: string;
-}
+import useFriendStore, { FriendResult } from "@/store/friendStore";
 
 const useFriend = () => {
   const [loading, setLoading] = useState<boolean>(false);
@@ -47,7 +40,7 @@ const useFriend = () => {
   }, [socket]);
 
   const searchFriends = (query: string) => {
-    // console.log(query);
+
     if (socket) {
       setLoading(true);
       socket.emit("searchFriends", { query, userId: storedUser.id });

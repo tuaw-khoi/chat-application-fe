@@ -4,7 +4,7 @@ import useChatStore, { chatFriend } from "@/store/chatStore";
 import useRoom from "@/hooks/useRoom";
 import Cookies from "js-cookie";
 import roomStore, { Room } from "@/store/roomStore";
-import { FC } from "react";
+import { FC, useEffect } from "react";
 
 interface ChatLabelProps {
   friendsResult:
@@ -19,9 +19,9 @@ const ChatLabel: FC<ChatLabelProps> = ({ friendsResult }) => {
   const userId = storedUser?.id;
   const { isFocused, setFocus } = focusStore();
   const { useRoomsForUser } = useRoom();
-  const { data: rooms } = useRoomsForUser(userId); // Renaming to 'rooms' for clarity
+  const { data: rooms } = useRoomsForUser(userId);
   const { setChat } = useChatStore();
-  const { setRoom } = roomStore();
+  const { roomIsChoiced, setRoom } = roomStore();
 
   // Handle when a friend is clicked for a new chat
   const handleNewChat = (chat: chatFriend) => {
@@ -33,6 +33,12 @@ const ChatLabel: FC<ChatLabelProps> = ({ friendsResult }) => {
   const handleSetRoom = (room: Room) => {
     setRoom(room);
   };
+
+  useEffect(() => {
+    if (roomIsChoiced === null && rooms && rooms.length > 0) {
+      setRoom(rooms[0]); 
+    }
+  }, [roomIsChoiced, rooms]);
 
   return (
     <div className="mt-3">
@@ -56,7 +62,7 @@ const ChatLabel: FC<ChatLabelProps> = ({ friendsResult }) => {
               </div>
             ))
           ) : (
-            <div>No friends found</div>
+            <div></div>
           )
         ) : (
           ""

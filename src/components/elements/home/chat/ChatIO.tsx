@@ -7,7 +7,7 @@ import Cookies from "js-cookie";
 import useChatStore from "@/store/chatStore";
 import useNewChat from "@/hooks/useNewChat";
 import roomStore from "@/store/roomStore";
-import { useEffect } from "react";
+import { useEffect, useRef, useState } from "react";
 
 // Định nghĩa kiểu dữ liệu cho tin nhắn
 interface MessageForm {
@@ -18,15 +18,17 @@ const ChatIO = () => {
   const userCookie = Cookies.get("user");
   const storedUser = userCookie ? JSON.parse(userCookie) : null;
   const userId = storedUser?.id;
-  const { roomIsChoiced } = roomStore();
+  const { roomIsChoiced, setRoom } = roomStore();
 
   const { chatIsChoiced } = useChatStore();
   const { messages } = useMessageStore();
   const { register, handleSubmit, reset } = useForm<MessageForm>();
-
   const roomId = roomIsChoiced?.roomId ?? -1;
 
-  // Dùng các hooks ngoài câu lệnh điều kiện
+  if (!messages) {
+    setRoom(null);
+  }
+
   const chatResult = useChat(chatIsChoiced?.roomId ?? -1, userId);
   const newChatResult = useNewChat(userId, chatIsChoiced?.id ?? "");
   const roomChatResult = useChat(roomId, userId);
@@ -34,7 +36,6 @@ const ChatIO = () => {
   let sendMessage: ((message: string) => void) | undefined;
   let sendNewMessage: ((message: string) => void) | undefined;
 
-  // Logic xác định sendMessage và sendNewMessage
   if (roomIsChoiced === null) {
     sendMessage = chatIsChoiced?.roomId ? chatResult.sendMessage : undefined;
     sendNewMessage =
@@ -42,7 +43,8 @@ const ChatIO = () => {
   } else {
     sendMessage = roomChatResult.sendMessage;
   }
-  // Xử lý gửi tin nhắn
+
+
   const onSubmit = (data: MessageForm) => {
     if (sendMessage) {
       sendMessage(data.message);
@@ -52,26 +54,38 @@ const ChatIO = () => {
     reset();
   };
 
-  useEffect(() => {}, [messages]);
+  // Ref để cuộn xuống cuối danh sách tin nhắn
+  const messagesEndRef = useRef<HTMLDivElement | null>(null);
+
+  // Cuộn xuống cuối khi có tin nhắn mới
+  useEffect(() => {
+    if (messagesEndRef.current) {
+      messagesEndRef.current.scrollIntoView();
+    }
+  }, [messages]);
 
   return (
-    <div className="p-4 bg-gray-100 flex flex-col h-screen">
+    <div className="p-4 bg-gray-100 flex flex-col h-[95vh]">
       <div className="flex-grow overflow-y-auto mb-4 pr-2 bg-white shadow-lg rounded">
-        {messages.length > 0 ? (
-          messages.map((message) => (
-            <div
-              key={message.id}
-              className={`mb-2 p-2 max-w-xs rounded shadow ${
-                message.senderId === userId
-                  ? "bg-blue-500 text-white ml-auto"
-                  : "bg-gray-300 text-black mr-auto"
-              }`}
-            >
-              {message.content}
-            </div>
-          ))
+        {messages?.length > 0 ? (
+          <>
+            {messages?.map((message) => (
+              <div
+                key={message.id}
+                className={`mb-2 p-2 max-w-xs rounded shadow ${
+                  message.senderId === userId
+                    ? "bg-blue-500 text-white ml-auto"
+                    : "bg-gray-300 text-black mr-auto"
+                }`}
+              >
+                {message.content}
+              </div>
+            ))}
+            {/* Phần tử dùng để cuộn xuống cuối */}
+            <div ref={messagesEndRef} />
+          </>
         ) : (
-          <div>No messages yet.</div>
+          <div></div>
         )}
       </div>
 

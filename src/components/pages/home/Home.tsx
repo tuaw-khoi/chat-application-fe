@@ -7,12 +7,14 @@ import Navbar from "@/components/elements/home/layout/Navbar";
 import Directory from "@/components/elements/home/layout/Directory";
 import Chat from "@/components/elements/home/chat/Chat";
 import Notification from "@/components/elements/home/chat/Notification";
-
+import PhoneBookStore from "@/store/phoneBookStore";
+import ManagerPhoneBook from "@/components/elements/phonebook/managerPhoneBook";
 
 const Home = () => {
   const { setAuthen, setIsAdmin } = useAuthenStore();
   const navigate = useNavigate();
   const { refreshLogin } = useAuth();
+  const { isPhoneBook } = PhoneBookStore();
 
   useEffect(() => {
     const fetchUserData = async () => {
@@ -55,32 +57,19 @@ const Home = () => {
     fetchUserData();
   }, [navigate, refreshLogin, setAuthen, setIsAdmin]);
 
-  // const roomId = "2"; // ID của phòng chat
-  // const socket = io("http://localhost:3002"); // URL của server Socket.io
-
-  // useEffect(() => {
-  //   // Kết nối và tham gia phòng
-  //   socket.emit("joinRoom", roomId);
-
-  //   // Lắng nghe sự kiện 'newMessage'
-  //   socket.on("newMessage", (message) => {
-  //     console.log("New message received:", message);
-  //   });
-
-  //   // Cleanup khi component unmount
-  //   return () => {
-  //     socket.off("newMessage");
-  //     socket.emit("leaveRoom", roomId);
-  //   };
-  // }, []);
-
   return (
-    <div>
-      <div className="flex h-screen ">
+    <div className="">
+      <div className="flex ">
         <Navbar />
-        <Notification />
-        <Chat />
-        <Directory />
+        {isPhoneBook ? (
+          <ManagerPhoneBook />
+        ) : (
+          <>
+            <Notification />
+            <Chat />
+            <Directory />
+          </>
+        )}
       </div>
     </div>
   );

@@ -9,7 +9,7 @@ const useChat = (roomId: number, userId: string) => {
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const [socket, setSocket] = useState<Socket | null>(null);
-  const { addMessage, setMessages } = useMessageStore();
+  const { addMessage, setMessages, messages } = useMessageStore();
   useEffect(() => {
     const newSocket = io("http://localhost:3002");
     setSocket(newSocket);
@@ -53,8 +53,9 @@ const useChat = (roomId: number, userId: string) => {
 
       try {
         const response = await AxiosClient.get(`/messages/${roomId}`);
-        setMessages(response.data);
-        setIsLoading(false);
+        if (Array.isArray(response.data) && response.data.length > 0) {
+          setMessages(response.data);
+        }
       } catch (err) {
         setError("Error loading messages");
         setIsLoading(false);

@@ -1,7 +1,7 @@
 import create from "zustand";
 
 // Định nghĩa kiểu dữ liệu cho tin nhắn
-interface FriendResult {
+export interface FriendResult {
   id: string;
   fullname: string;
   img: string;

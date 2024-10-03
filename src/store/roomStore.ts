@@ -5,7 +5,7 @@ export type Room = {
   roomName: string;
   roomId: number;
   roomImg: string;
-  latestMessage: string;
+  latestMessage?: string;
 };
 
 type RoomModalType = {
@@ -21,7 +21,7 @@ type RoomState = RoomModalType & RoomActionType;
 // Tạo store sử dụng zustand
 const useRoomStore = create<RoomState>((set) => ({
   roomIsChoiced: null,
-  setRoom: (room: Room | null) => set({ roomIsChoiced: room }),
+  setRoom: (room: Room | null | undefined) => set({ roomIsChoiced: room }),
 }));
 
 export default useRoomStore;

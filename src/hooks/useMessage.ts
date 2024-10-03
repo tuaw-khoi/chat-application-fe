@@ -4,7 +4,6 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 const useMessage = () => {
   const queryClient = useQueryClient();
 
-  // Hook để lấy tin nhắn của một phòng cụ thể
   const getMessages = (roomId: string) => {
     return useQuery({
       queryKey: ["messages", roomId],

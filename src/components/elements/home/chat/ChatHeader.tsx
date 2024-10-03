@@ -1,7 +1,16 @@
-import React from "react";
+import useChatStore from "@/store/chatStore";
+import roomStore from "@/store/roomStore";
 
 const ChatHeader = () => {
-  return <div>ChatHeader</div>;
+  const { roomIsChoiced } = roomStore();
+  const { chatIsChoiced } = useChatStore();
+  return (
+    <div className="h-[5vh]">
+      {roomIsChoiced === null
+        ? chatIsChoiced?.fullname
+        : roomIsChoiced.roomName}
+    </div>
+  );
 };
 
 export default ChatHeader;

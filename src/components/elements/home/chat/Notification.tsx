@@ -7,11 +7,10 @@ import focusStore from "@/store/focusStore";
 
 const Notification = () => {
   const { friendsResult } = useFriendStore();
-  const ref = useClickOutside();
+  const ref = useClickOutside("notification");
   const { isFocused, setFocus } = focusStore();
   const handleBlur = () => {
     setFocus(false);
-
   };
 
   return (
@@ -33,7 +32,7 @@ const Notification = () => {
         ) : (
           ""
         )}
-        <SearchChat  />
+        <SearchChat />
       </div>
       <ChatLabel friendsResult={friendsResult} />
     </div>

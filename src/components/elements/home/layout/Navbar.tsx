@@ -1,25 +1,31 @@
+import PhoneBookStore from "@/store/phoneBookStore";
+import AddFriend from "../../addfriend/addFriend";
+import PhoneBook from "../../phonebook/phonebook";
+import roomStore from "@/store/roomStore";
 const Navbar = () => {
+  const { setPhoneBook } = PhoneBookStore();
+  const { roomIsChoiced, setRoom } = roomStore();
+  const handleSetPhoneBook = () => {
+    setPhoneBook(false);
+    setRoom(null);
+  };
   return (
     <div className="w-1/12 flex flex-col items-center">
       <div className="mb-4">Q</div>
       <div>
-        <img className="w-16" src="src/asset/chaticon.svg" alt="Chat icon" />
+        <img
+          onClick={handleSetPhoneBook}
+          className="w-12 cursor-pointer"
+          src="src/asset/chaticon.svg"
+          alt="Chat icon"
+        />
+      </div>
+      <div className="flex flex-col">
+        <AddFriend />
+        <PhoneBook />
       </div>
     </div>
   );
 };
 
 export default Navbar;
-{
-  /* {user.avatar ? (
-          <img
-            src={user.avatar}
-            alt="Ảnh đại diện"
-            className="w-16 h-16 rounded-full"
-          />
-        ) : (
-          <div className="flex items-center justify-center w-16 h-16 bg-gray-300 rounded-full text-xl font-bold text-white">
-            {user.name.charAt(0)} {/* Hiển thị chữ cái đầu của tên */
-}
-// </div>
-// )} */}

@@ -15,9 +15,6 @@ const useFriends = () => {
       });
       return response.data;
     },
-    onSuccess: async (data) => {
-      console.log("Lời mời kết bạn đã được gửi thành công", data);
-    },
     onError: (error) => {
       console.error("Lỗi khi gửi lời mời kết bạn:", error);
     },

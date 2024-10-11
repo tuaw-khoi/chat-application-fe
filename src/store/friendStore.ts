@@ -5,7 +5,7 @@ export interface FriendResult {
   id: string;
   fullname: string;
   img: string;
-  roomId?: number;
+  roomId?: string;
 }
 
 // Định nghĩa kiểu dữ liệu cho store

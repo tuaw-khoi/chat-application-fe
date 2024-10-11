@@ -3,7 +3,7 @@ import create from "zustand";
 // Định nghĩa kiểu dữ liệu cho phòng chat
 export type Room = {
   roomName: string;
-  roomId: number;
+  roomId: string;
   roomImg: string;
   latestMessage?: string;
 };

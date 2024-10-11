@@ -6,9 +6,9 @@ const ChatHeader = () => {
   const { chatIsChoiced } = useChatStore();
   return (
     <div className="h-[5vh]">
-      {roomIsChoiced === null
+      {chatIsChoiced !== null
         ? chatIsChoiced?.fullname
-        : roomIsChoiced.roomName}
+        : roomIsChoiced?.roomName}
     </div>
   );
 };

@@ -3,32 +3,27 @@ import FriendList from "./FriendList ";
 import ChatHeader from "../home/chat/ChatHeader";
 import ChatIO from "../home/chat/ChatIO";
 import roomStore from "@/store/roomStore";
-
-const GroupList = () => (
-  <div>
-    <h2>Danh sách nhóm</h2>
-    {/* Hiển thị danh sách nhóm */}
-  </div>
-);
-
-const FriendRequests = () => (
-  <div>
-    <h2>Danh sách lời mời kết bạn</h2>
-    {/* Hiển thị lời mời kết bạn */}
-  </div>
-);
+import GroupList from "./GroupList ";
+import FriendRequests from "./FriendRequests";
+import useChatStore from "@/store/chatStore";
 
 const ManagerPhoneBook = () => {
   const [activeTab, setActiveTab] = useState("friends");
   const { roomIsChoiced, setRoom } = roomStore();
+  const { chatIsChoiced, setChat } = useChatStore();
+
   const handleTabChange = (tab: string) => {
     setRoom(null);
+    setChat(null);
     setActiveTab(tab);
   };
 
+  // Kiểm tra một trong hai điều kiện roomIsChoiced hoặc chatIsChoiced
+  const isChatActive = roomIsChoiced || chatIsChoiced;
+
   return (
     <>
-      <div className="w-1/5 ">
+      <div className="w-1/5">
         <h1 className="py-3">Quản lí danh bạ</h1>
         <div>
           <button
@@ -58,17 +53,36 @@ const ManagerPhoneBook = () => {
         </div>
       </div>
 
-      <div className="flex-1 bg-white  h-dvh">
-        {activeTab === "friends" &&
-          (roomIsChoiced ? (
-            <>
-              <ChatHeader />
-              <ChatIO />
-            </>
-          ) : (
-            <FriendList />
-          ))}
-        {activeTab === "groups" && <GroupList />}
+      <div className="flex-1 bg-white h-dvh">
+        {/* Kiểm tra nếu tab là 'friends' */}
+        {activeTab === "friends" && (
+          <>
+            {isChatActive ? (
+              <>
+                <ChatHeader />
+                <ChatIO />
+              </>
+            ) : (
+              <FriendList />
+            )}
+          </>
+        )}
+
+        {/* Kiểm tra nếu tab là 'groups' */}
+        {activeTab === "groups" && (
+          <>
+            {roomIsChoiced ? (
+              <>
+                <ChatHeader />
+                <ChatIO />
+              </>
+            ) : (
+              <GroupList />
+            )}
+          </>
+        )}
+
+        {/* Kiểm tra nếu tab là 'requests' */}
         {activeTab === "requests" && <FriendRequests />}
       </div>
     </>

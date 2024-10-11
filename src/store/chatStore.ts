@@ -12,14 +12,14 @@ export interface chatFriend {
   id: string;
   fullname: string;
   img: string;
-  roomId?: number;
+  roomId?: string;
+  type?: string;
 }
-
 
 interface ChatStore {
   messages: Message[];
   chatIsChoiced: chatFriend | null;
-  setChat: (chat: chatFriend) => void;
+  setChat: (chat: chatFriend | null) => void;
   setMessages: (messages: Message[]) => void;
   addMessage: (message: Message) => void;
 }

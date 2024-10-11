@@ -9,9 +9,6 @@ import roomStore from "@/store/roomStore";
 interface SearchFormInput {
   query: string;
 }
-type searchChat = {
-  reset: () => void;
-};
 
 const SearchChat = () => {
   const { searchFriends } = useFriend();

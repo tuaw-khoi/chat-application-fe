@@ -5,43 +5,67 @@ import useRoom from "@/hooks/useRoom";
 import Cookies from "js-cookie";
 import roomStore, { Room } from "@/store/roomStore";
 import { FC, useEffect } from "react";
+import useMessageStore from "@/store/messageStore";
 
 interface ChatLabelProps {
   friendsResult:
-    | { id: string; fullname: string; img: string; roomId?: number }[]
+    | {
+        id: string;
+        fullname: string;
+        img: string;
+        roomId?: string;
+        type?: string;
+      }[]
     | null
     | string;
 }
 
-const ChatLabel: FC<ChatLabelProps> = ({ friendsResult }) => {
+const ChatLabel = ({ friendsResult }: ChatLabelProps) => {
   const userCookie = Cookies.get("user");
   const storedUser = userCookie ? JSON.parse(userCookie) : null;
   const userId = storedUser?.id;
   const { isFocused, setFocus } = focusStore();
   const { useRoomsForUser } = useRoom();
   const { data: rooms } = useRoomsForUser(userId);
-  const { setChat } = useChatStore();
+  const { chatIsChoiced, setChat } = useChatStore();
   const { roomIsChoiced, setRoom } = roomStore();
+  const { setMessages } = useMessageStore();
 
-  // Handle when a friend is clicked for a new chat
   const handleNewChat = (chat: chatFriend) => {
-    setChat(chat);
-    setFocus(false); // Set focus to false once a chat is selected
+    if (!chat.roomId) {
+      setChat(chat);
+      setMessages(null);
+      setRoom(null);
+    } else {
+      setChat(null);
+      setRoom({
+        roomId: chat.roomId,
+        roomImg: chat.img,
+        roomName: chat.fullname,
+      });
+    }
+    setFocus(false);
   };
 
   // Handle when a room is selected
   const handleSetRoom = (room: Room) => {
+    setChat(null);
     setRoom(room);
   };
 
   useEffect(() => {
-    if (roomIsChoiced === null && rooms && rooms.length > 0) {
-      setRoom(rooms[0]); 
+    if (
+      roomIsChoiced === null &&
+      rooms &&
+      rooms.length > 0 &&
+      chatIsChoiced === null
+    ) {
+      setRoom(rooms[0]);
     }
-  }, [roomIsChoiced, rooms]);
+  }, [roomIsChoiced, rooms, chatIsChoiced]);
 
   return (
-    <div className="mt-3">
+    <div>
       {isFocused ? (
         friendsResult && Array.isArray(friendsResult) ? (
           friendsResult.length > 0 ? (
@@ -74,7 +98,11 @@ const ChatLabel: FC<ChatLabelProps> = ({ friendsResult }) => {
             <div
               key={room.roomId}
               onClick={() => handleSetRoom(room)}
-              className="p-2 rounded-2xl flex items-center cursor-pointer hover:bg-gray-300"
+              className={`p-2 rounded-2xl flex items-center cursor-pointer hover:bg-gray-300 ${
+                roomIsChoiced && roomIsChoiced.roomId === room.roomId
+                  ? "bg-gray-300"
+                  : ""
+              }`}
             >
               <Avatar className="bg-gray-400 flex justify-center items-center mr-5">
                 <AvatarImage

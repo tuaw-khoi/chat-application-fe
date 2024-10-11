@@ -4,7 +4,7 @@ import create from "zustand";
 interface Message {
   id: number;
   content: string;
-  senderId: string;
+  senderId: string | { id: string };
   roomId: number;
 }
 
@@ -12,7 +12,7 @@ interface MessageStore {
   messages: Message[];
   lastedMessage: string | null; // lastedMessage là một chuỗi string hoặc null
   addMessage: (message: Message) => void;
-  setMessages: (messages: Message[]) => void;
+  setMessages: (messages: Message[] | null) => void;
   setLastedMessage: (message: string) => void;
 }
 
@@ -26,9 +26,11 @@ const useMessageStore = create<MessageStore>((set) => ({
     })),
   setMessages: (messages) =>
     set({
-      messages,
+      messages: messages || [],
       lastedMessage:
-        messages.length > 0 ? messages[messages.length - 1].content : null, // Cập nhật lastedMessage với nội dung tin nhắn cuối cùng hoặc null nếu mảng rỗng
+        messages && messages.length > 0
+          ? messages[messages.length - 1].content
+          : null,
     }),
   setLastedMessage: (message) => set({ lastedMessage: message }),
 }));

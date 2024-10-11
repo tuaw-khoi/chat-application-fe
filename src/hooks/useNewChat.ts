@@ -1,24 +1,17 @@
-// hooks/useChat.ts
 import { io, Socket } from "socket.io-client";
 import { useEffect, useState } from "react";
 import AxiosClient from "@/service/AxiosClient";
 import useMessageStore from "@/store/messageStore";
-import messageStore from "@/store/messageStore";
 import useChatStore from "@/store/chatStore";
+import roomStore, { Room } from "@/store/roomStore";
 
-type newRoomChat = {
-  content: string;
-  senderId: string;
-  reciveId?: string;
-};
-
-const useNewChat = (senderId: string, reciveId: string) => {
+const useNewChat = (senderId: string, receiveId: string | null) => {
   const [isLoading, setIsLoading] = useState<boolean>(true);
-  // const [newRoomId, setNewRoomId] = useState<number>();
   const [error, setError] = useState<string | null>(null);
   const [socket, setSocket] = useState<Socket | null>(null);
   const { chatIsChoiced, setChat } = useChatStore();
-  const { addMessage, setMessages } = useMessageStore();
+  const { setRoom } = roomStore();
+  const { setMessages } = useMessageStore();
   useEffect(() => {
     const newSocket = io("http://localhost:3002");
     setSocket(newSocket);
@@ -28,77 +21,45 @@ const useNewChat = (senderId: string, reciveId: string) => {
     };
   }, []);
 
-  useEffect(() => {
-    if (!socket) return;
-    const handleSetNewMessage = (newRoomId: number) => {
-      if (chatIsChoiced) {
-        setChat({
-          ...chatIsChoiced, // Giữ lại các thuộc tính khác của `chatIsChoiced`
-          roomId: newRoomId, // Cập nhật `roomId` với `newRoomId` mới
-        });
-      }
-    };
+  const fetchMessages = async (roomId: string) => {
+    if (!roomId) return;
 
-    socket.on("newroomId", handleSetNewMessage);
-  }, [socket]);
-
-  useEffect(() => {
-    const fetchMessages = async () => {
-      if (!socket) return;
-
-      try {
-        if (chatIsChoiced?.roomId === undefined) return;
-        const response = await AxiosClient.get(
-          `/messages/${chatIsChoiced?.roomId}`
-        );
-        setMessages(response.data);
-        setIsLoading(false);
-      } catch (err) {
-        setError("Error loading messages");
-        setIsLoading(false);
-      }
-    };
-
-    if (chatIsChoiced?.roomId !== null) {
-      fetchMessages();
+    try {
+      const response = await AxiosClient.get(`/messages/${roomId}`);
+      setMessages(response.data);
+      setIsLoading(false);
+    } catch (err) {
+      setError("Error loading messages");
+      setIsLoading(false);
     }
-  }, [chatIsChoiced?.roomId, socket]);
+  };
 
   useEffect(() => {
     if (!socket) return;
 
-    socket.emit("joinRoom", chatIsChoiced);
-
-    const handleNewMessage = (message: any) => {
-      const newMessage = {
-        id: message.id,
-        content: message.content,
-        senderId: message.sender,
-        roomId: message.room.id,
-      };
-      if (newMessage.roomId === chatIsChoiced?.id) {
-        addMessage(newMessage);
+    const handleSetNewRoom = (newRoom: Room) => {
+      fetchMessages(newRoom.roomId);
+      if (chatIsChoiced) {
+        setChat(null);
+        setRoom(newRoom);
       }
     };
 
-    socket.on("newMessage", handleNewMessage);
-    socket.on("errorNewChat", (error) => {
-      console.error("Error received from server:", error);
-      alert(`Error: ${error.message}`);
-    });
+    socket.on("newroomId", handleSetNewRoom);
+    // Cleanup event listener on component unmount
     return () => {
-      socket.off("newMessage", handleNewMessage);
+      socket.off("newroomId", handleSetNewRoom);
     };
-  }, [chatIsChoiced?.roomId, socket]);
+  }, [socket, chatIsChoiced]);
 
+  // Send a new message to the server
   const sendNewMessage = async (content: string) => {
     if (content.trim() === "") return;
-
     try {
       socket?.emit("sendMessage", {
         content,
-        senderId: senderId,
-        reciveId: reciveId,
+        senderId,
+        receiveId,
       });
     } catch (err) {
       console.error("Failed to send message:", err);

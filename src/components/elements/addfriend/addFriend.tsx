@@ -1,5 +1,6 @@
 import {
   Dialog,
+  DialogClose,
   DialogContent,
   DialogDescription,
   DialogHeader,
@@ -29,13 +30,17 @@ const AddFriend = () => {
   // Hàm để đóng dialog
   const closeDialog = () => {
     setIsDialogOpen(false);
+    setSearchUser(null);
   };
 
   useEffect(() => {
     if (searchUser === null) {
       return;
     }
-    if (typeof searchUser === "string" && searchUser === "usernotfound") {
+    if (
+      typeof searchUser.message === "string" &&
+      searchUser.message === "usernotfound"
+    ) {
       toast({
         title: "Không tìm thấy người dùng",
         description: "Vui lòng kiểm tra lại thông tin.",
@@ -48,7 +53,15 @@ const AddFriend = () => {
 
   return (
     <div>
-      <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+      <Dialog
+        open={isDialogOpen}
+        onOpenChange={(open) => {
+          setIsDialogOpen(open);
+          if (!open) {
+            closeDialog();
+          }
+        }}
+      >
         <DialogTrigger asChild>
           <div>
             <img

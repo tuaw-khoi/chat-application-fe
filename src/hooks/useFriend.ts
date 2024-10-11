@@ -24,7 +24,7 @@ const useFriend = () => {
     if (!socket) return;
 
     const handleSearchFriendsResult = (data: FriendResult[] | string) => {
-      if (data === "name") {
+      if (data === undefined) {
         setFriendsResult([]);
         return;
       }
@@ -32,10 +32,10 @@ const useFriend = () => {
       setLoading(false);
     };
 
-    socket.on("searchFriendsResult", handleSearchFriendsResult);
+    socket.on("searchChatsResult", handleSearchFriendsResult);
 
     return () => {
-      socket.off("searchFriendsResult", handleSearchFriendsResult);
+      socket.off("searchChatsResult", handleSearchFriendsResult);
     };
   }, [socket]);
 
@@ -43,7 +43,7 @@ const useFriend = () => {
 
     if (socket) {
       setLoading(true);
-      socket.emit("searchFriends", { query, userId: storedUser.id });
+      socket.emit("searchChats", { query, userId: storedUser.id });
     }
   };
 

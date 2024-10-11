@@ -4,12 +4,12 @@ import { useEffect, useState } from "react";
 import AxiosClient from "@/service/AxiosClient";
 import useMessageStore from "@/store/messageStore";
 import { useQueryClient } from "@tanstack/react-query";
-const useChat = (roomId: number, userId: string) => {
+const useChat = (roomId: string | null, userId: string) => {
   const queryClient = useQueryClient();
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const [socket, setSocket] = useState<Socket | null>(null);
-  const { addMessage, setMessages, messages } = useMessageStore();
+  const { addMessage, setMessages } = useMessageStore();
   useEffect(() => {
     const newSocket = io("http://localhost:3002");
     setSocket(newSocket);
@@ -20,7 +20,8 @@ const useChat = (roomId: number, userId: string) => {
   }, []);
 
   useEffect(() => {
-    if (!socket) return;
+    if (!socket || roomId === "-1") return;
+
     socket.emit("joinRoom", roomId);
 
     const handleNewMessage = (message: any) => {
@@ -40,7 +41,6 @@ const useChat = (roomId: number, userId: string) => {
     socket.on("newMessage", handleNewMessage);
     socket.on("errorNewChat", (error) => {
       console.error("Error received from server:", error);
-      alert(`Error: ${error.message}`);
     });
     return () => {
       socket.off("newMessage", handleNewMessage);
@@ -52,9 +52,13 @@ const useChat = (roomId: number, userId: string) => {
       if (!socket) return;
 
       try {
-        const response = await AxiosClient.get(`/messages/${roomId}`);
-        if (Array.isArray(response.data) && response.data.length > 0) {
-          setMessages(response.data);
+        if (!socket || !roomId || roomId !== "-1") {
+          const response = await AxiosClient.get(`/messages/${roomId}`);
+          if (Array.isArray(response.data) && response.data.length > 0) {
+            setMessages(response.data);
+          } else {
+            setMessages(null);
+          }
         }
       } catch (err) {
         setError("Error loading messages");

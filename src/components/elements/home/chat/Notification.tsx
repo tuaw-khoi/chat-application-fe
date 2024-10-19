@@ -4,6 +4,7 @@ import SearchChat from "./SearchChat";
 import ChatLabel from "./ChatLabel";
 import useClickOutside from "@/hooks/useClickOutside";
 import focusStore from "@/store/focusStore";
+import CreateGroupForm from "./CreateGroupForm";
 
 const Notification = () => {
   const { friendsResult } = useFriendStore();
@@ -16,7 +17,12 @@ const Notification = () => {
   return (
     <div className="w-1/5" ref={ref}>
       <div className=" h-[13dvh]">
-        <h2 className="py-3">Đoạn chat</h2>
+        <div className="py-2 flex  justify-between mr-3">
+          <h2 className="">Đoạn chat</h2>
+          <div className="">
+           <CreateGroupForm/>
+          </div>
+        </div>
         <div className="flex items-center ">
           {isFocused ? (
             <div

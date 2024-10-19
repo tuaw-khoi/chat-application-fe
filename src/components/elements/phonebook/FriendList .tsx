@@ -77,7 +77,7 @@ const FriendList = () => {
                     <div className="flex items-center ">
                       <Avatar className="bg-gray-400 flex justify-center items-center mr-5">
                         <AvatarImage
-                          className="w-8 h-8"
+                          className="w-8 h-8 rounded-full"
                           src={friend.img || "src/asset/avatarDefault.svg"}
                           alt="Avatar"
                         />

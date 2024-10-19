@@ -4,7 +4,7 @@ import useChatStore, { chatFriend } from "@/store/chatStore";
 import useRoom from "@/hooks/useRoom";
 import Cookies from "js-cookie";
 import roomStore, { Room } from "@/store/roomStore";
-import { FC, useEffect } from "react";
+import { useEffect } from "react";
 import useMessageStore from "@/store/messageStore";
 
 interface ChatLabelProps {
@@ -77,7 +77,7 @@ const ChatLabel = ({ friendsResult }: ChatLabelProps) => {
               >
                 <Avatar className="bg-gray-400 flex justify-center items-center mr-5">
                   <AvatarImage
-                    className="w-7 h-7"
+                    className="w-7 h-7 rounded-full"
                     src={friend.img || "src/asset/avatarDefault.svg"}
                     alt="Avatar"
                   />
@@ -104,9 +104,9 @@ const ChatLabel = ({ friendsResult }: ChatLabelProps) => {
                   : ""
               }`}
             >
-              <Avatar className="bg-gray-400 flex justify-center items-center mr-5">
+              <Avatar className="bg-gray-400 flex justify-center items-center mr-5 ">
                 <AvatarImage
-                  className="w-7 h-7"
+                  className="w-7 h-7 rounded-full"
                   src={room.roomImg || "src/asset/avatarDefault.svg"}
                   alt="Room Avatar"
                 />

@@ -43,9 +43,40 @@ const useFriendReq = () => {
     },
   });
 
+  const checkFriendRequestStatus = async (userId1: string, userId2: string) => {
+    const response = await AxiosClient.get(`/friend-requests/status`, {
+      params: { userId1, userId2 },
+    });
+    return response.data;
+  };
+
+  const cancelFriendRequest = useMutation({
+    mutationFn: async ({
+      userId,
+      friendId,
+    }: {
+      userId: string;
+      friendId: string;
+    }) => {
+      const response = await AxiosClient.delete(
+        `/friend-requests/${userId}/cancel-request/${friendId}`
+      );
+      return response.data;
+    },
+    onSuccess: () => {
+     
+      // Cập nhật state hoặc làm mới danh sách nếu cần
+    },
+    onError: (error: any) => {
+      console.error("Error cancelling friend request:", error);
+    },
+  });
+
   return {
     useFriendRequests,
     acceptFriendRequest,
+    checkFriendRequestStatus,
+    cancelFriendRequest,
   };
 };
 

@@ -6,6 +6,7 @@ export type Room = {
   roomId: string;
   roomImg: string;
   latestMessage?: string;
+  receiveId?: string;
 };
 
 type RoomModalType = {

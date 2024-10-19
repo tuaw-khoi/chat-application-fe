@@ -33,7 +33,7 @@ const SearchChat = () => {
       setValue("query", "");
     }
     if (isFocused === true) {
-      setRoom(null);
+      // setRoom(null);
     }
   }, [isFocused]);
   const onSubmit = (data: SearchFormInput) => {

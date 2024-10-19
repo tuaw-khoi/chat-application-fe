@@ -1,6 +1,11 @@
 import AxiosClient from "@/service/AxiosClient";
-import useRoomStore from "@/store/roomStore";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+interface CreateRoomDto {
+  name: string;
+  img?: string;
+  members: string[];
+  userId: string;
+}
 
 const useRoom = () => {
   const queryClient = useQueryClient();
@@ -32,9 +37,32 @@ const useRoom = () => {
     return { data, error, isLoading };
   };
 
+  const useCreateRoom = () => {
+    const mutation = useMutation({
+      mutationFn: async (createRoomDto: CreateRoomDto) => {
+        const response = await AxiosClient.post("/rooms/group", createRoomDto);
+        return response.data;
+      },
+      onSuccess: () => {
+        queryClient.invalidateQueries({ queryKey: ["publicRooms"] });
+        queryClient.invalidateQueries({ queryKey: ["roomsForUser"] });
+      },
+      onError: (error) => {
+        console.error("Error creating room:", error);
+      },
+    });
+
+    return {
+      mutate: mutation.mutate,
+      isError: mutation.isError,
+      isSuccess: mutation.isSuccess,
+    };
+  };
+
   return {
     useRoomsForUser,
     usePublicRooms,
+    useCreateRoom,
   };
 };
 

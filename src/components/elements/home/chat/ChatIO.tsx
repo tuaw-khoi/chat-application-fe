@@ -7,7 +7,8 @@ import Cookies from "js-cookie";
 import useChatStore from "@/store/chatStore";
 import useNewChat from "@/hooks/useNewChat";
 import roomStore from "@/store/roomStore";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
+import useFriends from "@/hooks/useFriends";
 
 // Định nghĩa kiểu dữ liệu cho tin nhắn
 interface MessageForm {
@@ -25,8 +26,13 @@ const ChatIO = () => {
   const roomId = roomIsChoiced?.roomId ?? "-1";
   const newChatResult = useNewChat(userId, chatIsChoiced?.id ?? null);
   const roomChatResult = useChat(roomId, userId);
+  const { checkFriendship } = useFriends();
   let sendMessage: ((message: string) => void) | undefined;
   let sendNewMessage: ((message: string) => void) | undefined;
+  const { data: isFriends, isLoading } = checkFriendship(
+    userId,
+    roomIsChoiced?.receiveId ?? ""
+  );
   if (chatIsChoiced !== null) {
     sendNewMessage =
       chatIsChoiced?.roomId === null || chatIsChoiced?.roomId === undefined
@@ -35,8 +41,15 @@ const ChatIO = () => {
   } else {
     sendMessage = roomChatResult.sendMessage;
   }
-
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const onSubmit = (data: MessageForm) => {
+    if (!!roomIsChoiced?.receiveId && (!isFriends || isLoading)) {
+      setErrorMessage(
+        "Bạn không thể gửi tin nhắn vì hai người không phải là bạn bè."
+      );
+      return; // Không gửi tin nhắn nếu không phải bạn bè
+    }
+
     if (sendNewMessage) {
       sendNewMessage(data.message);
     } else if (sendMessage) {
@@ -83,6 +96,11 @@ const ChatIO = () => {
         )}
       </div>
 
+      {/* Hiển thị thông báo lỗi nếu có */}
+      {errorMessage && (
+        <div className="mb-2 text-red-500 text-center">{errorMessage}</div>
+      )}
+
       <form
         onSubmit={handleSubmit(onSubmit)}
         className="flex items-center space-x-2"
@@ -93,7 +111,12 @@ const ChatIO = () => {
           {...register("message", { required: true })}
           className="flex-grow"
         />
-        <Button type="submit">Gửi</Button>
+        <Button
+          disabled={!!roomIsChoiced?.receiveId && (!isFriends || isLoading)}
+          type="submit"
+        >
+          Gửi
+        </Button>
       </form>
     </div>
   );

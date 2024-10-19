@@ -20,6 +20,25 @@ const useFriends = () => {
     },
   });
 
+  const removeFriend = useMutation({
+    mutationFn: async ({
+      userId1,
+      userId2,
+    }: {
+      userId1: string;
+      userId2: string;
+    }) => {
+      const response = await AxiosClient.delete(
+        `/friends/${userId1}/remove-friend/${userId2}`
+      );
+      return response.data;
+    },
+    onSuccess: () => {},
+    onError: (error: any) => {
+      console.error("Error removing friend:", error);
+    },
+  });
+
   const getAllFriends = () => {
     return useQuery({
       queryKey: ["friends", storedUser.id],
@@ -30,9 +49,25 @@ const useFriends = () => {
       staleTime: 0,
     });
   };
+
+  const checkFriendship = (userId1: string, userId2: string) => {
+    return useQuery({
+      queryKey: ["are-friends", userId1, userId2], 
+      queryFn: async () => {
+        const response = await AxiosClient.get(
+          `/friends/${userId1}/are-friends/${userId2}`
+        );
+        return response.data;
+      },
+      enabled: !!userId1 && !!userId2, 
+    });
+  };
+
   return {
     addFriend,
     getAllFriends,
+    removeFriend,
+    checkFriendship,
   };
 };
 

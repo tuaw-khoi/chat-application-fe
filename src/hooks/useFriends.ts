@@ -33,7 +33,9 @@ const useFriends = () => {
       );
       return response.data;
     },
-    onSuccess: () => {},
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["friends"] });
+    },
     onError: (error: any) => {
       console.error("Error removing friend:", error);
     },
@@ -52,14 +54,14 @@ const useFriends = () => {
 
   const checkFriendship = (userId1: string, userId2: string) => {
     return useQuery({
-      queryKey: ["are-friends", userId1, userId2], 
+      queryKey: ["are-friends", userId1, userId2],
       queryFn: async () => {
         const response = await AxiosClient.get(
           `/friends/${userId1}/are-friends/${userId2}`
         );
         return response.data;
       },
-      enabled: !!userId1 && !!userId2, 
+      enabled: !!userId1 && !!userId2,
     });
   };
 

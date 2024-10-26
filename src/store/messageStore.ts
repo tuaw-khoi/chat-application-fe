@@ -1,11 +1,11 @@
-// store/messageStore.ts
-import create from "zustand";
+import { create } from "zustand";
 
 interface Message {
   id: number;
   content: string;
   senderId: string | { id: string };
   roomId: number;
+  type?: string;
 }
 
 interface MessageStore {

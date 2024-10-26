@@ -12,6 +12,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarImage } from "@/components/ui/avatar";
+import Profile from "../../profile/profile";
 
 const Navbar = () => {
   const { setPhoneBook } = PhoneBookStore();
@@ -71,11 +72,11 @@ const Navbar = () => {
               alt=""
             />
           </DropdownMenuTrigger>
-          <DropdownMenuContent  className="ml-20">
+          <DropdownMenuContent className="ml-20">
             <DropdownMenuLabel>{user?.fullname}</DropdownMenuLabel>
             <DropdownMenuSeparator />
-            <DropdownMenuItem>Profile</DropdownMenuItem>
-            <DropdownMenuItem onClick={handleLogout}>
+            <Profile />
+            <DropdownMenuItem className="cursor-pointer" onClick={handleLogout}>
               Đăng Xuất
             </DropdownMenuItem>
           </DropdownMenuContent>

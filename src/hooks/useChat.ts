@@ -31,10 +31,16 @@ const useChat = (roomId: string | null, userId: string) => {
         senderId: message.sender,
         roomId: message.room.id,
         sent_at: message.sent_at,
+        type: message.type,
       };
       queryClient.invalidateQueries({ queryKey: ["roomsForUser"] });
       if (newMessage.roomId === roomId) {
         addMessage(newMessage);
+      }
+      if (newMessage.type === "IMG") {
+        queryClient.invalidateQueries({
+          queryKey: ["roomDetailsWithImages"],
+        });
       }
     };
 
@@ -69,7 +75,7 @@ const useChat = (roomId: string | null, userId: string) => {
     fetchMessages();
   }, [roomId, socket]);
 
-  const sendMessage = async (content: string) => {
+  const sendMessage = async (content: string, type: string) => {
     if (content.trim() === "") return;
 
     try {
@@ -77,6 +83,7 @@ const useChat = (roomId: string | null, userId: string) => {
         content,
         senderId: userId,
         roomId,
+        type,
       });
     } catch (err) {
       console.error("Failed to send message:", err);

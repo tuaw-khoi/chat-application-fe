@@ -1,5 +1,5 @@
 // store/useGlobalState.ts
-import create from "zustand";
+import { create } from "zustand";
 import { Room } from "./roomStore";
 
 type user = {

@@ -3,6 +3,7 @@ import { Avatar, AvatarImage } from "@/components/ui/avatar";
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
@@ -136,6 +137,8 @@ const CreateGroupForm = () => {
           />
         </DialogTrigger>
         <DialogContent>
+          <DialogTitle></DialogTitle>
+          <DialogDescription></DialogDescription>
           <DialogHeader>
             <DialogTitle>Tạo nhóm mới</DialogTitle>
             <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">

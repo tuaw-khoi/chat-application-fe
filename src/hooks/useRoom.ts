@@ -1,4 +1,5 @@
 import AxiosClient from "@/service/AxiosClient";
+import { TRoomDetail } from "@/types/roomDetail";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 interface CreateRoomDto {
   name: string;
@@ -11,14 +12,15 @@ const useRoom = () => {
   const queryClient = useQueryClient();
   // Hook để lấy danh sách các phòng của người dùng
 
-  const usePublicRooms = () => {
+  const usePublicRooms = (userId: string) => {
     const { data, error, isLoading } = useQuery({
-      queryKey: ["publicRooms"],
+      queryKey: ["publicRooms", userId],
       queryFn: async () => {
-        const response = await AxiosClient.get("/rooms/public");
+        const response = await AxiosClient.get(`/rooms/public/${userId}`);
         return response.data;
       },
-      staleTime: 0,
+      staleTime: 60000,
+      refetchOnWindowFocus: false,
     });
 
     return { data, error, isLoading };
@@ -59,10 +61,104 @@ const useRoom = () => {
     };
   };
 
+  const useRoomDetailsWithImages = (roomId: string | null | undefined) => {
+    const { data, error, isLoading } = useQuery<TRoomDetail>({
+      queryKey: ["roomDetailsWithImages", roomId],
+      queryFn: async () => {
+        if (!roomId) {
+          throw new Error("Room ID is required");
+        }
+        const response = await AxiosClient.get(`/rooms/${roomId}/details`);
+        return response.data;
+      },
+      staleTime: 0,
+      enabled: !!roomId,
+    });
+
+    return { data, error, isLoading };
+  };
+
+  const addUsersToRoom = async (roomId: string, userIds: string[]) => {
+    try {
+      const response = await AxiosClient.post(`/rooms/${roomId}/add-users`, {
+        userIds,
+      });
+      queryClient.invalidateQueries({
+        queryKey: ["roomDetailsWithImages"],
+      });
+    } catch (error) {
+      console.error("Error adding users:", error);
+    }
+  };
+
+  const leaveRoom = async (roomId: string, userId: string) => {
+    try {
+      const response = await AxiosClient.post(`/rooms/${roomId}/leave`, {
+        userId,
+      });
+      queryClient.invalidateQueries({
+        queryKey: ["roomDetailsWithImages"],
+      });
+    } catch (error) {
+      console.error("Error leaving room:", error);
+      throw error;
+    }
+  };
+
+  const removeUserFromRoomByAdmin = async (
+    roomId: string,
+    senderId: string,
+    targetUserId: string
+  ) => {
+    try {
+      const response = await AxiosClient.delete(
+        `/rooms/${roomId}/remove-user`,
+        {
+          data: { senderId, targetUserId },
+        }
+      );
+      queryClient.invalidateQueries({
+        queryKey: ["roomDetailsWithImages"],
+      });
+    } catch (error) {
+      console.error("Error removing user from room by admin:", error);
+      throw error;
+    }
+  };
+
+  const changeAdminStatus = async (
+    roomId: string,
+    senderId: string,
+    targetUserId: string,
+    isAdmin: boolean
+  ) => {
+    try {
+      const response = await AxiosClient.patch(
+        `/rooms/${roomId}/change-admin-status`,
+        {
+          senderId,
+          targetUserId,
+          isAdmin,
+        }
+      );
+      queryClient.invalidateQueries({
+        queryKey: ["roomDetailsWithImages", roomId],
+      });
+    } catch (error) {
+      console.error("Error changing admin status:", error);
+      throw error;
+    }
+  };
+
   return {
     useRoomsForUser,
     usePublicRooms,
     useCreateRoom,
+    useRoomDetailsWithImages,
+    addUsersToRoom,
+    leaveRoom,
+    removeUserFromRoomByAdmin,
+    changeAdminStatus,
   };
 };
 

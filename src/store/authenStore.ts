@@ -1,4 +1,4 @@
-import create from "zustand";
+import { create } from "zustand";
 
 export type isAuthenticated = true | false | null;
 export type AdminType = 0 | 1 | null;

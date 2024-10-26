@@ -1,4 +1,4 @@
-import create from "zustand";
+import { create } from "zustand";
 
 // Định nghĩa kiểu dữ liệu cho tin nhắn
 export interface FriendResult {

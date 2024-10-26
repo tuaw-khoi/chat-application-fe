@@ -1,5 +1,4 @@
-import create from "zustand";
-
+import { create } from "zustand";
 // Định nghĩa kiểu dữ liệu cho phòng chat
 export type Room = {
   roomName: string;

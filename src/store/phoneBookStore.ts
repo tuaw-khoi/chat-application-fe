@@ -1,5 +1,4 @@
-// store/useGlobalState.ts
-import create from "zustand";
+import { create } from "zustand";
 
 interface phoneBookStore {
   isPhoneBook: boolean;

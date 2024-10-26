@@ -7,53 +7,40 @@ const useUser = () => {
   const queryClient = useQueryClient();
   const userCookie = Cookies.get("user");
   const storedUser = userCookie ? JSON.parse(userCookie) : null;
-  // const { data } = useQuery({
-  //   queryKey: ["users"],
-  //   queryFn: async () => {
-  //     const response = await AxiosClient.get("user");
-  //     return response.data.data;
-  //   },
-  // });
 
-  // const deleteUser = useMutation({
-  //   mutationFn: async (id: string) => {
-  //     return AxiosClient.delete(`user/deleteUser?UserIds=${id}`);
-  //   },
-  //   onSuccess: async () => {
-  //     queryClient.invalidateQueries({ queryKey: ["users"] });
-  //   },
-  // });
+  const updateProfile = useMutation({
+    mutationFn: async (updateUserDto: any) => {
+      const response = await AxiosClient.put(
+        `user/${storedUser.id}/profile`,
+        updateUserDto
+      );
+      return response.data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["user", storedUser.id] });
+    },
+    onError: (error) => {
+      console.error("Error updating profile:", error);
+    },
+  });
 
-  // const updateUser = async (user: TUser, id: string) => {
-  //   await AxiosClient.post(`user/updateUser`, {
-  //     UserId: id,
-  //     ...user,
-  //   });
-  //   queryClient.invalidateQueries({ queryKey: ["users"] });
-  // };
-
-  // const changePassword = useMutation({
-  //   mutationFn: async ({
-  //     userId,
-  //     oldPassword,
-  //     newPassword,
-  //   }: {
-  //     userId: string;
-  //     oldPassword: string;
-  //     newPassword: string;
-  //   }) => {
-  //     const response = await AxiosClient.post("/user/updatePassword", {
-  //       userId,
-  //       oldPassword,
-  //       newPassword,
-  //     });
-  //     return response.data;
-  //   },
-
-  //   onSuccess: (data) => {
-  //     queryClient.invalidateQueries({ queryKey: ["user"] });
-  //   },
-  // });
+  const changePassword = useMutation({
+    mutationFn: async (changePasswordDto: {
+      currentPassword: string;
+      newPassword: string;
+    }) => {
+      const response = await AxiosClient.put(
+        `user/${storedUser.id}/change-password`,
+        changePasswordDto
+      );
+      return response.data;
+    },
+    onSuccess: () => {
+    },
+    onError: (error) => {
+      console.error("Error changing password:", error);
+    },
+  });
 
   const searchNewFriend = useMutation({
     mutationFn: async (emailorusername: string) => {
@@ -69,11 +56,8 @@ const useUser = () => {
     },
   });
 
-  return {
-    // data,
-    // deleteUser,
-    // updateUser,
-    // changePassword,
+  return {updateProfile,
+    changePassword,
     searchNewFriend,
   };
 };

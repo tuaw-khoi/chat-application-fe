@@ -69,22 +69,36 @@ const ChatLabel = ({ friendsResult }: ChatLabelProps) => {
       {isFocused ? (
         friendsResult && Array.isArray(friendsResult) ? (
           friendsResult.length > 0 ? (
-            friendsResult.map((friend) => (
-              <div
-                onClick={() => handleNewChat(friend)}
-                key={friend.id}
-                className="p-2 rounded-2xl flex items-center cursor-pointer hover:bg-gray-300"
-              >
-                <Avatar className="bg-gray-400 flex justify-center items-center mr-5">
-                  <AvatarImage
-                    className="w-7 h-7 rounded-full"
-                    src={friend.img || "src/asset/avatarDefault.svg"}
-                    alt="Avatar"
-                  />
-                </Avatar>
-                {friend.fullname}
-              </div>
-            ))
+            friendsResult.map((friend) => {
+              const friendAvatarSrc =
+                friend.img || "src/asset/avatarDefault.svg"; // Avatar cho bạn bè
+              return (
+                <div
+                  onClick={() => handleNewChat(friend)}
+                  key={friend.id}
+                  className="p-2 rounded-2xl flex items-center cursor-pointer hover:bg-gray-300"
+                >
+                  <Avatar
+                    className={`flex justify-center items-center ${
+                      friendAvatarSrc === "src/asset/avatarDefault.svg"
+                        ? "bg-gray-400"
+                        : ""
+                    }`}
+                  >
+                    <AvatarImage
+                      className={`rounded-full ${
+                        friendAvatarSrc === "src/asset/avatarDefault.svg"
+                          ? "w-7 h-7" // Kích thước khi là ảnh mặc định
+                          : "w-9 h-9" // Kích thước to hơn khi không phải ảnh mặc định
+                      }`}
+                      src={friendAvatarSrc}
+                      alt="Avatar"
+                    />
+                  </Avatar>
+                  {friend.fullname}
+                </div>
+              );
+            })
           ) : (
             <div></div>
           )
@@ -94,29 +108,44 @@ const ChatLabel = ({ friendsResult }: ChatLabelProps) => {
       ) : (
         // Display room list when input is not focused
         <div>
-          {rooms?.map((room: Room) => (
-            <div
-              key={room.roomId}
-              onClick={() => handleSetRoom(room)}
-              className={`p-2 rounded-2xl flex items-center cursor-pointer hover:bg-gray-300 ${
-                roomIsChoiced && roomIsChoiced.roomId === room.roomId
-                  ? "bg-gray-300"
-                  : ""
-              }`}
-            >
-              <Avatar className="bg-gray-400 flex justify-center items-center mr-5 ">
-                <AvatarImage
-                  className="w-7 h-7 rounded-full"
-                  src={room.roomImg || "src/asset/avatarDefault.svg"}
-                  alt="Room Avatar"
-                />
-              </Avatar>
-              <div>
-                <h1>{room.roomName}</h1>
-                <h2>{room.latestMessage}</h2>
+          {rooms?.map((room: Room) => {
+            const roomAvatarSrc = room.roomImg || "src/asset/avatarDefault.svg";
+            return (
+              <div
+                key={room.roomId}
+                onClick={() => handleSetRoom(room)}
+                className={`p-2 rounded-2xl flex items-center cursor-pointer hover:bg-gray-300 ${
+                  roomIsChoiced && roomIsChoiced.roomId === room.roomId
+                    ? "bg-gray-300"
+                    : ""
+                }`}
+              >
+                <Avatar
+                  className={`flex justify-center items-center mr-5 ${
+                    roomAvatarSrc === "src/asset/avatarDefault.svg"
+                      ? "bg-gray-400"
+                      : ""
+                  }`}
+                >
+                  <AvatarImage
+                    className={`rounded-full ${
+                      roomAvatarSrc === "src/asset/avatarDefault.svg"
+                        ? "w-7 h-7" // Kích thước khi là ảnh mặc định
+                        : "w-9 h-9" // Kích thước to hơn khi không phải ảnh mặc định
+                    }`}
+                    src={roomAvatarSrc}
+                    alt="Room Avatar"
+                  />
+                </Avatar>
+                <div className="flex flex-col">
+                  <h1 className="font-bold">{room.roomName}</h1>
+                  <h2 className="text-sm text-gray-600">
+                    {room.latestMessage}
+                  </h2>
+                </div>
               </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       )}
     </div>

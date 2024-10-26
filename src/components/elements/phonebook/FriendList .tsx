@@ -2,7 +2,7 @@ import { Avatar, AvatarImage } from "@/components/ui/avatar";
 import useFriends from "@/hooks/useFriends";
 import useChatStore, { chatFriend } from "@/store/chatStore";
 import useMessageStore from "@/store/messageStore";
-import roomStore, { Room } from "@/store/roomStore";
+import roomStore from "@/store/roomStore";
 import { TFriend } from "@/types/friend";
 
 const groupByFirstLetter = (friends: TFriend[]) => {
@@ -31,7 +31,6 @@ const FriendList = () => {
   );
 
   const groupedFriends = groupByFirstLetter(sortedFriends);
-
   const handleSetRoom = (friend: TFriend) => () => {
     if (friend.room) {
       setRoom(friend?.room);

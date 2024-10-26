@@ -5,7 +5,10 @@ import useMessageStore from "@/store/messageStore";
 import useChatStore from "@/store/chatStore";
 import roomStore, { Room } from "@/store/roomStore";
 
-const useNewChat = (senderId: string, receiveId: string | null) => {
+const useNewChat = (
+  senderId: string,
+  receiveId: string | null,
+) => {
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const [socket, setSocket] = useState<Socket | null>(null);
@@ -53,13 +56,14 @@ const useNewChat = (senderId: string, receiveId: string | null) => {
   }, [socket, chatIsChoiced]);
 
   // Send a new message to the server
-  const sendNewMessage = async (content: string) => {
+  const sendNewMessage = async (content: string, type: string) => {
     if (content.trim() === "") return;
     try {
       socket?.emit("sendMessage", {
         content,
         senderId,
         receiveId,
+        type,
       });
     } catch (err) {
       console.error("Failed to send message:", err);

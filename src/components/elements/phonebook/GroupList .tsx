@@ -2,7 +2,7 @@ import { Avatar, AvatarImage } from "@/components/ui/avatar";
 import useRoom from "@/hooks/useRoom";
 import roomStore from "@/store/roomStore";
 import { TGroupRoom } from "@/types/roomForUser";
-import React from "react";
+import Cookies from "js-cookie";
 
 const groupByFirstLetter = (rooms: any[]) => {
   return rooms.reduce((acc: { [key: string]: any[] }, room: any) => {
@@ -16,8 +16,11 @@ const groupByFirstLetter = (rooms: any[]) => {
 };
 
 const GroupList = () => {
+  const userCookie = Cookies.get("user");
+  const storedUser = userCookie ? JSON.parse(userCookie) : null;
+  const userId = storedUser?.id;
   const { usePublicRooms } = useRoom();
-  const { data: publicRooms, error, isLoading } = usePublicRooms();
+  const { data: publicRooms, error, isLoading } = usePublicRooms(userId);
   const { setRoom } = roomStore();
 
   if (isLoading) {

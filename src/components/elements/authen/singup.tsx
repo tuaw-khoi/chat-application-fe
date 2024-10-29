@@ -26,27 +26,27 @@ import useAuth from "@/hooks/useAuth";
 const formSchema = z
   .object({
     username: z.string().min(2, {
-      message: "Username must be at least 2 characters.",
+      message: "Tên đăng nhập phải có ít nhất 2 ký tự.",
     }),
     email: z
       .string()
-      .min(1, { message: "This field has to be filled." })
-      .email("This is not a valid email."),
+      .min(1, { message: "Trường này không được bỏ trống." })
+      .email("Địa chỉ email không hợp lệ."),
     password: z
       .string()
-      .min(6, { message: "Password must be at least 6 characters." })
+      .min(6, { message: "Mật khẩu phải có ít nhất 6 ký tự." })
       .refine((value) => /\d/.test(value), {
-        message: "Password must contain at least one digit (0-9).",
+        message: "Mật khẩu phải chứa ít nhất một chữ số (0-9).",
       }),
     password2: z
       .string()
-      .min(6, { message: "Password must be at least 6 characters." }),
+      .min(6, { message: "Mật khẩu phải có ít nhất 6 ký tự." }),
     fullname: z.string().min(2, {
-      message: "Full name must be at least 2 characters.",
+      message: "Họ và tên phải có ít nhất 2 ký tự.",
     }),
   })
   .refine((values) => values.password === values.password2, {
-    message: "Passwords must match!",
+    message: "Mật khẩu không khớp!",
     path: ["password2"],
   });
 

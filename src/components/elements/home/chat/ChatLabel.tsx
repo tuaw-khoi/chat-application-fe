@@ -116,7 +116,7 @@ const ChatLabel = ({ friendsResult }: ChatLabelProps) => {
                 onClick={() => handleSetRoom(room)}
                 className={`p-2 rounded-2xl flex items-center cursor-pointer hover:bg-gray-300 ${
                   roomIsChoiced && roomIsChoiced.roomId === room.roomId
-                    ? "bg-gray-300"
+                    ? "bg-gray-200"
                     : ""
                 }`}
               >

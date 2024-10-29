@@ -15,12 +15,12 @@ const Notification = () => {
   };
 
   return (
-    <div className="w-1/5" ref={ref}>
+    <div className="w-1/5 bg-gray-100 px-2" ref={ref}>
       <div className=" h-[13dvh]">
-        <div className="py-2 flex  justify-between mr-3">
-          <h2 className="">Đoạn chat</h2>
+        <div className="py-2 flex  justify-between mr-3 ">
+          <h2 className="text-xl font-bold pl-2 ">Đoạn chat</h2>
           <div className="">
-           <CreateGroupForm/>
+            <CreateGroupForm />
           </div>
         </div>
         <div className="flex items-center ">

@@ -150,6 +150,34 @@ const useRoom = () => {
     }
   };
 
+  const useUpdateRoomName = () => {
+    const mutation = useMutation({
+      mutationFn: async ({
+        roomId,
+        newName,
+      }: {
+        roomId: string;
+        newName: string;
+      }) => {
+        const response = await AxiosClient.patch(`/rooms/${roomId}/name`, {
+          newName,
+        });
+        return response.data; // Trả về dữ liệu từ phản hồi
+      },
+      onSuccess: (data, variables) => {
+        const { roomId } = variables; // Lấy roomId từ biến truyền vào
+        queryClient.invalidateQueries({ queryKey: ["roomDetailsWithImages"] });
+        queryClient.invalidateQueries({ queryKey: ["publicRooms"] });
+        queryClient.invalidateQueries({ queryKey: ["roomsForUser"] });
+      },
+      onError: (error) => {
+        console.error("Error updating room name:", error); // Cập nhật thông báo lỗi
+      },
+    });
+
+    return { mutate: mutation.mutate };
+  };
+
   return {
     useRoomsForUser,
     usePublicRooms,
@@ -159,6 +187,7 @@ const useRoom = () => {
     leaveRoom,
     removeUserFromRoomByAdmin,
     changeAdminStatus,
+    useUpdateRoomName,
   };
 };
 

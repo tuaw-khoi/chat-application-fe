@@ -44,7 +44,7 @@ const SearchChat = () => {
     setFocus(true);
   };
   return (
-    <div className="w-full">
+    <div className="w-full ">
       <form onSubmit={handleSubmit(onSubmit)}>
         <div className="relative">
           {/* Input và icon tìm kiếm */}
@@ -61,7 +61,7 @@ const SearchChat = () => {
               onFocus={handleFocus} // Gọi hàm khi input được focus
               type="text"
               placeholder="Tìm kiếm đoạn chat"
-              className="pl-8"
+              className="pl-8 bg-gray-300"
             />
           </div>
         </div>

@@ -98,8 +98,8 @@ const ChatIO = () => {
   }, [messages, roomIsChoiced]);
 
   return (
-    <div className="p-4 bg-gray-100 flex flex-col h-[95vh]">
-      <div className="flex-grow overflow-y-auto mb-4 pr-2 bg-white shadow-lg rounded">
+    <div className="p-4 border  bg-gray-100 flex flex-col h-[94vh]">
+      <div className="flex-grow overflow-y-auto mb-4 pr-2 bg-white shadow-lg rounded ">
         <div className="mt-3">
           {messages && messages.length > 0 ? (
             <>

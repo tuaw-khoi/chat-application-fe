@@ -42,7 +42,7 @@ const Navbar = () => {
     Cookies.remove("user");
   };
   return (
-    <div className="w-1/12 flex flex-col items-center">
+    <div className="w-24 flex flex-col items-center bg-gray-300">
       <Avatar className="bg-gray-400 flex justify-center items-center my-2">
         <AvatarImage
           className="w-8 h-8"

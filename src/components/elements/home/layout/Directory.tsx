@@ -17,6 +17,8 @@ import useFriends from "@/hooks/useFriends";
 import MemberOfGroup, { Member } from "../group/MemberOfGroup";
 import Cookies from "js-cookie";
 import { useState } from "react";
+import { Input } from "@/components/ui/input";
+import { useForm } from "react-hook-form";
 
 type Message = {
   id: number;
@@ -25,10 +27,14 @@ type Message = {
   type: string;
 };
 
+interface updateNameForm {
+  newName: string;
+}
+
 const Directory = () => {
   const { roomIsChoiced, setRoom } = roomStore();
   const { chatIsChoiced } = useChatStore();
-  const { useRoomDetailsWithImages, leaveRoom } = useRoom();
+  const { useRoomDetailsWithImages, leaveRoom, useUpdateRoomName } = useRoom();
   const { getAllFriends } = useFriends();
   const data = getAllFriends();
   const friends = data?.data || [];
@@ -37,6 +43,8 @@ const Directory = () => {
   const currentUserId = storedUser?.id;
   const roomId = roomIsChoiced?.roomId;
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
+  const { register, handleSubmit, reset } = useForm<updateNameForm>();
+  const { mutate: updateRoomName } = useUpdateRoomName();
   const {
     data: roomDetail,
     isLoading,
@@ -95,8 +103,15 @@ const Directory = () => {
   const isImageMessagesArray = Array.isArray(imageMessages);
   const displayedImages = isImageMessagesArray ? imageMessages.slice(0, 3) : [];
 
+  const onSubmit = (data: updateNameForm) => {
+    if (data && roomId) {
+      updateRoomName({ roomId: roomId, newName: data.newName });
+    }
+    reset();
+  };
+
   return (
-    <div className="flex-1 px-4">
+    <div className="flex-1 px-4 bg-gray-100">
       <div className="flex flex-col items-center justify-center">
         <h1 className="py-2 text-xl font-bold">Thông tin đoạn chat</h1>
 
@@ -114,16 +129,38 @@ const Directory = () => {
         </Avatar>
 
         {/* Name and Edit Button */}
-        <div className="flex justify-center items-center mt-3">
+        <div className="flex justify-center items-center mt-3 pl-2">
           <span className="text-center font-semibold text-lg text-nowrap">
             {name || "Không có lựa chọn"}
           </span>
           {roomDetail && roomDetail.room.isPublic && (
-            <img
-              className="h-7 w-7 px-1 -mr-2 cursor-pointer hover:bg-gray-100 rounded-full"
-              src="src/asset/edit.svg"
-              alt="Edit"
-            />
+            <Dialog>
+              <DialogTrigger>
+                <img
+                  className="h-7 w-7 -mr-2 cursor-pointer hover:bg-gray-100 rounded-full"
+                  src="src/asset/edit.svg"
+                  alt="Edit"
+                />
+              </DialogTrigger>
+              <DialogContent>
+                <DialogHeader>
+                  <DialogTitle>Đổi tên nhóm</DialogTitle>
+                </DialogHeader>
+                <form
+                  onSubmit={handleSubmit(onSubmit)}
+                  className="flex space-x-3"
+                >
+                  <Input
+                    {...register("newName", { required: true })}
+                    type="text"
+                    placeholder="Aa"
+                    className="flex-grow"
+                  />
+
+                  <Button type="submit">Gửi</Button>
+                </form>
+              </DialogContent>
+            </Dialog>
           )}
         </div>
 
@@ -318,9 +355,7 @@ const Directory = () => {
                 </DialogClose>
               </DialogContent>
             </Dialog>
-          ) : (
-            <div>Chưa có hình ảnh </div>
-          )}
+          ) : null}
           {/* Dialog phóng to ảnh */}
           {selectedImage && (
             <Dialog open onOpenChange={closeDialog}>

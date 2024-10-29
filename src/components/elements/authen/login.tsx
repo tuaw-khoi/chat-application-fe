@@ -25,10 +25,10 @@ import useAuth from "@/hooks/useAuth";
 
 const formSchema = z.object({
   emailorusername: z.string().min(2, {
-    message: "Username must be at least 2 characters.",
+    message: "Tên đăng nhập phải có ít nhất hai kí tự.",
   }),
   password: z.string().min(2, {
-    message: "password must be at least 2 characters.",
+    message: "Mật khẩu phải có ít nhất hai kí tự..",
   }),
 });
 const FormLogin = () => {

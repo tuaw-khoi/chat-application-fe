@@ -40,8 +40,15 @@ const Authentication = () => {
     fetchUserData();
   }, [authen, isAdmin]);
   return (
-    <div className="flex items-center justify-center min-h-screen bg-gray-100">
-      <div className="bg-black px-5 py-7">
+    <div
+      style={{
+        backgroundImage: "url('/src/asset/bgweb.png')",
+        backgroundSize: "cover",
+        backgroundPosition: "center",
+      }}
+      className="flex items-center justify-center min-h-screen"
+    >
+      <div className="bg-orange-300 rounded-lg px-5 py-7">
         <TabAuthen />
       </div>
     </div>

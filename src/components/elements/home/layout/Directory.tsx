@@ -59,7 +59,10 @@ const Directory = () => {
     roomDetail?.room.roomUsers.map((member: any) => member?.user?.id) || [];
   const currentMembers =
     roomDetail?.room.roomUsers.map((member: any) => member) || [];
-  const name = chatIsChoiced ? chatIsChoiced.fullname : roomIsChoiced?.roomName;
+  const roomName = roomDetail?.room.isPublic
+    ? roomDetail.room.name
+    : roomIsChoiced?.roomName;
+  const name = chatIsChoiced ? chatIsChoiced.fullname : roomName;
   const avatarSrc =
     chatIsChoiced?.img ||
     roomIsChoiced?.roomImg ||

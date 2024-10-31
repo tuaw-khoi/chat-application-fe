@@ -53,9 +53,7 @@ const useAuth = () => {
     mutationFn: async (user: TUser) => {
       const { fullname, password, email, username } = user;
       const newUser = { fullname, password, email, username };
-      console.log(newUser);
       const response = await AxiosClient.post("/auth/register", newUser);
-      console.log(response);
       return response.data;
     },
 

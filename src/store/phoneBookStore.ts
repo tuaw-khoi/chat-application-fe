@@ -1,13 +1,15 @@
 import { create } from "zustand";
 
-interface phoneBookStore {
-  isPhoneBook: boolean;
-  setPhoneBook: (PhoneBook: boolean) => void;
+type PageType = "home" | "phoneBook" | "chat";
+
+interface PageTypeStore {
+  currentPage: PageType;
+  setPage: (page: PageType) => void;
 }
 
-const PhoneBookStore = create<phoneBookStore>((set) => ({
-  isPhoneBook: false,
-  setPhoneBook: (PhoneBook) => set({ isPhoneBook: PhoneBook }),
+const PageType = create<PageTypeStore>((set) => ({
+  currentPage: "home", // Trang mặc định có thể là "home"
+  setPage: (page) => set({ currentPage: page }),
 }));
 
-export default PhoneBookStore;
+export default PageType;

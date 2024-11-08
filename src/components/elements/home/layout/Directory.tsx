@@ -51,7 +51,7 @@ const Directory = () => {
     error,
   } = useRoomDetailsWithImages(roomId!);
 
-  if (roomId === undefined) {
+  if (roomId === undefined && !chatIsChoiced?.id) {
     return <div>Chưa chọn phòng nào.</div>;
   }
 

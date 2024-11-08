@@ -9,12 +9,13 @@ import Chat from "@/components/elements/home/chat/Chat";
 import Notification from "@/components/elements/home/chat/Notification";
 import PhoneBookStore from "@/store/phoneBookStore";
 import ManagerPhoneBook from "@/components/elements/phonebook/managerPhoneBook";
+import Homepage from "@/components/elements/homepage/homepage";
 
 const Home = () => {
   const { setAuthen, setIsAdmin } = useAuthenStore();
   const navigate = useNavigate();
   const { refreshLogin } = useAuth();
-  const { isPhoneBook } = PhoneBookStore();
+  const { currentPage } = PhoneBookStore();
 
   useEffect(() => {
     const fetchUserData = async () => {
@@ -58,11 +59,13 @@ const Home = () => {
   }, [navigate, refreshLogin, setAuthen, setIsAdmin]);
 
   return (
-    <div className="">
+    <div className={` ${currentPage === "home" ? " bg-gray-200" : "null"}`}>
       <div className="flex ">
         <Navbar />
-        {isPhoneBook ? (
+        {currentPage === "phoneBook" ? (
           <ManagerPhoneBook />
+        ) : currentPage === "home" ? (
+          <Homepage />
         ) : (
           <>
             <Notification />

@@ -79,7 +79,7 @@ const ChatLabel = ({ friendsResult }: ChatLabelProps) => {
                   className="p-2 rounded-2xl flex items-center cursor-pointer hover:bg-gray-300"
                 >
                   <Avatar
-                    className={`flex justify-center items-center ${
+                    className={`flex mr-2 justify-center items-center ${
                       friendAvatarSrc === "src/asset/avatarDefault.svg"
                         ? "bg-gray-400"
                         : ""

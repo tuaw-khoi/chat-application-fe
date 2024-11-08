@@ -171,13 +171,11 @@ const useRoom = () => {
         queryClient.invalidateQueries({ queryKey: ["roomsForUser"] });
       },
       onError: (error) => {
-        console.error("Error updating room name:", error); 
+        console.error("Error updating room name:", error); // Cập nhật thông báo lỗi
       },
     });
-
     return { mutate: mutation.mutate };
   };
-
   return {
     useRoomsForUser,
     usePublicRooms,

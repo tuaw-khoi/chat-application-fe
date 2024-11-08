@@ -15,13 +15,13 @@ import { Avatar, AvatarImage } from "@/components/ui/avatar";
 import Profile from "../../profile/profile";
 
 const Navbar = () => {
-  const { setPhoneBook } = PhoneBookStore();
+  const { setPage, currentPage } = PhoneBookStore();
   const { setRoom } = roomStore();
   const getUserFromCookies = () => {
     const user = Cookies.get("user");
     if (user) {
       try {
-        return JSON.parse(user); // Chuyển đổi chuỗi JSON về đối tượng
+        return JSON.parse(user);
       } catch (error) {
         console.error("Error parsing user data from cookie", error);
         return null;
@@ -33,7 +33,12 @@ const Navbar = () => {
   // Sử dụng hàm
   const user = getUserFromCookies();
   const handleSetPhoneBook = () => {
-    setPhoneBook(false);
+    setPage("chat");
+    setRoom(null);
+  };
+
+  const handleSetHomepage = () => {
+    setPage("home");
     setRoom(null);
   };
 
@@ -42,7 +47,13 @@ const Navbar = () => {
     Cookies.remove("user");
   };
   return (
-    <div className="w-24 flex flex-col items-center bg-gray-300">
+    <div
+      className={`flex flex-col   ${
+        currentPage === "home"
+          ? "w-80 pl-10 pt-10 bg-white ml-16 rounded-2xl my-2"
+          : "w-24 items-center bg-gray-300"
+      }`}
+    >
       <Avatar className="bg-gray-400 flex justify-center items-center my-2">
         <AvatarImage
           className="w-8 h-8"
@@ -50,7 +61,19 @@ const Navbar = () => {
           alt="Room Avatar"
         />
       </Avatar>
-      <div>
+      <div
+        className={`${
+          currentPage === "home"
+            ? "flex flex-col space-y-5 mt-16"
+            : "flex flex-col space-y-4 mt-5"
+        }`}
+      >
+        <img
+          onClick={handleSetHomepage}
+          className="w-12 cursor-pointer"
+          src="src/asset/home.svg"
+          alt="Chat icon"
+        />
         <img
           onClick={handleSetPhoneBook}
           className="w-12 cursor-pointer"
@@ -59,7 +82,11 @@ const Navbar = () => {
         />
       </div>
       <div className="flex flex-col h-full justify-between">
-        <div className="flex-grow">
+        <div
+          className={`flex-grow space-y-4 mt-4 ${
+            currentPage === "home" ? " space-y-5 mt-5" : null
+          }`}
+        >
           <AddFriend />
           <PhoneBook />
         </div>
@@ -67,7 +94,7 @@ const Navbar = () => {
           <DropdownMenuTrigger>
             {" "}
             <img
-              className="w-12 cursor-pointer mb-5"
+              className="w-12 cursor-pointer mb-7"
               src="src/asset/setting.svg"
               alt=""
             />

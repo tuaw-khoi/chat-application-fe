@@ -13,11 +13,12 @@ type NewUserInforProps = {
 };
 
 const NewUserInfor = ({ closeDialog }: NewUserInforProps) => {
+  const { checkFriendRequestStatus, cancelFriendRequest, check } =
+    useFriendReq();
   const { searchUser, setSearchUser } = searchFoundStore();
   const { setRoom } = roomStore();
   const { toast } = useToast();
   const { addFriend, removeFriend } = useFriends();
-  const { checkFriendRequestStatus, cancelFriendRequest } = useFriendReq();
   const [friendRequestStatus, setFriendRequestStatus] = useState<
     "pending" | "isFriend" | "not_found" | null
   >(null);
@@ -30,6 +31,7 @@ const NewUserInfor = ({ closeDialog }: NewUserInforProps) => {
     setSearchUser(null);
   };
 
+
   useEffect(() => {
     const fetchFriendStatus = async () => {
       if (searchUser && userId) {
@@ -40,18 +42,15 @@ const NewUserInfor = ({ closeDialog }: NewUserInforProps) => {
           );
           setFriendRequestStatus(status.status);
         } catch (error) {
-          toast({
-            title: "Lỗi",
-            description: "Không thể kiểm tra trạng thái lời mời kết bạn.",
-            className: "bg-red-500 text-white",
-          });
+          console.log(error);
         }
       }
     };
     fetchFriendStatus();
   }, [searchUser, userId, checkFriendRequestStatus, toast]);
 
-  const handleSendNewChat = (chat: searchFriend) => {
+
+  const handleSendNewChat = async (chat: searchFriend) => {
     if (chat?.message === "Not friends yet") {
       toast({
         title: "Không thể nhắn tin",
@@ -72,8 +71,6 @@ const NewUserInfor = ({ closeDialog }: NewUserInforProps) => {
     try {
       if (chat) {
         await addFriend.mutateAsync(chat?.user.id);
-        const status = await checkFriendRequestStatus(userId, chat?.user.id);
-        setFriendRequestStatus(status.status);
       }
     } catch (error) {
       toast({
@@ -91,8 +88,6 @@ const NewUserInfor = ({ closeDialog }: NewUserInforProps) => {
           userId,
           friendId: chat.user.id,
         });
-        const status = await checkFriendRequestStatus(userId, chat?.user.id);
-        setFriendRequestStatus(status.status);
       }
     } catch (error) {
       toast({
@@ -110,8 +105,6 @@ const NewUserInfor = ({ closeDialog }: NewUserInforProps) => {
           userId1: userId,
           userId2: chat.user.id,
         });
-        const status = await checkFriendRequestStatus(userId, chat?.user.id);
-        setFriendRequestStatus(status.status);
       }
     } catch (error) {
       toast({

@@ -3,13 +3,13 @@ import PhoneBookStore from "@/store/phoneBookStore";
 import roomStore from "@/store/roomStore";
 
 const PhoneBook = () => {
-  const { setPhoneBook } = PhoneBookStore();
+  const { setPage } = PhoneBookStore();
   const { setRoom } = roomStore();
-    const { setChat } = useChatStore();
+  const { setChat } = useChatStore();
   const handleSetPhoneBook = () => {
     setRoom(null);
-    setChat(null)
-    setPhoneBook(true);
+    setChat(null);
+    setPage("phoneBook");
   };
   return (
     <div>

@@ -15,6 +15,7 @@ const useFriendReq = () => {
         return response.data;
       },
       staleTime: 0,
+      refetchInterval: 1000,
     });
     return { data, error, isLoading };
   };
@@ -46,8 +47,24 @@ const useFriendReq = () => {
   const checkFriendRequestStatus = async (userId1: string, userId2: string) => {
     const response = await AxiosClient.get(`/friend-requests/status`, {
       params: { userId1, userId2 },
-    });
+    })
     return response.data;
+  };
+
+
+  const check = (userId1: string, userId2: string) => {
+    const { data, isPending, error } = useQuery({
+      queryKey: ["friend-request-status", userId1, userId2],
+      queryFn: async () => {
+        console.log(userId1, userId2);
+        const response = await AxiosClient.get(`/friend-requests/status`, {
+          params: { userId1, userId2 },
+        });
+        return response.data;
+      },
+    });
+
+    return { data, isPending, error };
   };
 
   const cancelFriendRequest = useMutation({
@@ -64,7 +81,6 @@ const useFriendReq = () => {
       return response.data;
     },
     onSuccess: () => {
-     
       // Cập nhật state hoặc làm mới danh sách nếu cần
     },
     onError: (error: any) => {
@@ -77,6 +93,7 @@ const useFriendReq = () => {
     acceptFriendRequest,
     checkFriendRequestStatus,
     cancelFriendRequest,
+    check,
   };
 };
 

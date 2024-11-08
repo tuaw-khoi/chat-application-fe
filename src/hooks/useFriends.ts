@@ -49,6 +49,7 @@ const useFriends = () => {
         return response.data;
       },
       staleTime: 0,
+      refetchInterval: 1000,
     });
   };
 

@@ -1,13 +1,26 @@
 // types/user.ts
 
 export type TUser = {
-  id?: string;
+  id: string;
   username: string;
   fullname: string;
   email: string;
-  password?: string;
-  role?: string; // Có thể là 'ADMIN' hoặc 'USER'
-  img?: string;
+  role: "ADMIN" | "USER";
+  img: string;
+  created_at: string;
+  updated_at: string;
+  roomUsers?: Array<{
+    id: number;
+    isAdmin: boolean;
+    room?: {
+      id: string;
+      name: string;
+      isPublic: boolean;
+      createdAt: string;
+      updatedAt: string;
+      img: string;
+    };
+  }>;
 };
 
 export type TUserLogin = {

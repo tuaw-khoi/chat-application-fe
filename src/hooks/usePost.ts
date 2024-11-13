@@ -1,11 +1,24 @@
 import AxiosClient from "@/service/AxiosClient";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { TPost } from "@/types/post";
+import {
+  useQuery,
+  useMutation,
+  useQueryClient,
+  useInfiniteQuery,
+} from "@tanstack/react-query";
 
 interface CreatePostDto {
   content: string;
   isPublic: boolean;
   photos?: string[]; // Assuming this is an array of photo URLs
 }
+
+export type GetPostsResponse = {
+  data: TPost[];
+  total: number;
+  currentPage: number;
+  totalPages: number;
+};
 
 const usePost = () => {
   const queryClient = useQueryClient();
@@ -37,7 +50,7 @@ const usePost = () => {
         return response.data;
       },
       onSuccess: () => {
-        queryClient.invalidateQueries({ queryKey: ["postsForUser"] }); 
+        queryClient.invalidateQueries({ queryKey: ["postsForUserAndFriends"] });
       },
       onError: (error) => {
         console.error("Error creating post:", error);
@@ -111,12 +124,30 @@ const usePost = () => {
     return { mutate: mutation.mutate };
   };
 
+  const useInfinitePostsForUserAndFriends = () => {
+    return useInfiniteQuery<GetPostsResponse, Error>({
+      queryKey: ["postsForUserAndFriends"],
+      queryFn: async ({ pageParam = 1 }: { pageParam?: number }) => {
+        const response = await AxiosClient.get(
+          `/posts/friends?page=${pageParam}&limit=10`
+        );
+        return response.data;
+      },
+      refetchInterval: 1000,
+      getNextPageParam: (lastPage: any) =>
+        lastPage.currentPage < lastPage.totalPages
+          ? Number(lastPage.currentPage) + 1
+          : undefined,
+    });
+  };
+
   return {
     usePostsForUser,
     useCreatePost,
     usePostDetails,
     useUpdatePost,
     useDeletePost,
+    useInfinitePostsForUserAndFriends,
   };
 };
 

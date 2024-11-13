@@ -13,8 +13,13 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarImage } from "@/components/ui/avatar";
 import Profile from "../../profile/profile";
+import { RefObject } from "react";
 
-const Navbar = () => {
+const Navbar = ({
+  mainContentRef,
+}: {
+  mainContentRef: RefObject<HTMLDivElement>;
+}) => {
   const { setPage, currentPage } = PhoneBookStore();
   const { setRoom } = roomStore();
   const getUserFromCookies = () => {
@@ -32,25 +37,32 @@ const Navbar = () => {
 
   // Sử dụng hàm
   const user = getUserFromCookies();
-  const handleSetPhoneBook = () => {
+  const handleSetChat = () => {
     setPage("chat");
     setRoom(null);
+    if (mainContentRef.current) {
+      mainContentRef.current.scrollTo({ top: 0, behavior: "smooth" });
+    }
   };
 
   const handleSetHomepage = () => {
     setPage("home");
     setRoom(null);
+    if (mainContentRef.current) {
+      mainContentRef.current.scrollTo({ top: 0, behavior: "smooth" });
+    }
   };
 
   const handleLogout = () => {
     Cookies.remove("token");
     Cookies.remove("user");
+    setPage("home");
   };
   return (
     <div
       className={`flex flex-col   ${
         currentPage === "home"
-          ? "w-80 pl-10 pt-10 bg-white ml-16 rounded-2xl my-2"
+          ? "w-64 pl-10 pt-10 bg-white ml-[5rem] rounded-2xl my-2 fixed h-[97.5dvh]"
           : "w-24 items-center bg-gray-300"
       }`}
     >
@@ -72,13 +84,13 @@ const Navbar = () => {
           onClick={handleSetHomepage}
           className="w-12 cursor-pointer"
           src="src/asset/home.svg"
-          alt="Chat icon"
+          alt="homepage icon"
         />
         <img
-          onClick={handleSetPhoneBook}
+          onClick={handleSetChat}
           className="w-12 cursor-pointer"
           src="src/asset/chaticon.svg"
-          alt="Chat icon"
+          alt="chat icon"
         />
       </div>
       <div className="flex flex-col h-full justify-between">

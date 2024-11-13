@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import useAuth from "@/hooks/useAuth";
 import Cookies from "js-cookie";
@@ -58,10 +58,12 @@ const Home = () => {
     fetchUserData();
   }, [navigate, refreshLogin, setAuthen, setIsAdmin]);
 
+  const mainContentRef = useRef<HTMLDivElement>(null);
+
   return (
-    <div className={` ${currentPage === "home" ? " bg-gray-200" : "null"}`}>
-      <div className="flex ">
-        <Navbar />
+    <div className={` ${currentPage === "home" ? " bg-gray-200 " : "null"}`}>
+      <div ref={mainContentRef} className="flex overflow-y-auto ">
+        <Navbar mainContentRef={mainContentRef} />
         {currentPage === "phoneBook" ? (
           <ManagerPhoneBook />
         ) : currentPage === "home" ? (

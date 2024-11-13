@@ -176,6 +176,22 @@ const useRoom = () => {
     });
     return { mutate: mutation.mutate };
   };
+  const useRoomBetweenUsers = (userId1: string, userId2: string) => {
+    const { data, error, isLoading } = useQuery({
+      queryKey: ["roomBetweenUsers", userId1, userId2],
+      queryFn: async () => {
+        const response = await AxiosClient.get(
+          `/rooms/between/${userId1}/${userId2}`
+        );
+        return response.data;
+      },
+      staleTime: 60000,
+      refetchOnWindowFocus: false,
+    });
+
+    return { data, error, isLoading };
+  };
+
   return {
     useRoomsForUser,
     usePublicRooms,
@@ -186,6 +202,7 @@ const useRoom = () => {
     removeUserFromRoomByAdmin,
     changeAdminStatus,
     useUpdateRoomName,
+    useRoomBetweenUsers,
   };
 };
 

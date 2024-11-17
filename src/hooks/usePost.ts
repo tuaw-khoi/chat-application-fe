@@ -131,6 +131,7 @@ const usePost = () => {
         const response = await AxiosClient.get(
           `/posts/friends?page=${pageParam}&limit=10`
         );
+        // console.log(response.data);
         return response.data;
       },
       refetchInterval: 1000,

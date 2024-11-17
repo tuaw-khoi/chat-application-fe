@@ -1,5 +1,5 @@
 import AxiosClient from "@/service/AxiosClient";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { CreateCommentDto, TComment, UpdateCommentDto } from "@/types/comment";
 
 const useComment = () => {
@@ -55,13 +55,25 @@ const useComment = () => {
     },
   });
 
+  const getCommentChilds = (id: string) => {
+    return useQuery({
+      queryKey: ["comment-replies", id],
+      queryFn: async () => {
+        const response = await AxiosClient.get(`/comments/${id}/replies`);
+        return response.data as TComment[];
+      },
+      refetchInterval: 1000,
+    });
+  };
+
   return {
     create: createComment.mutate,
     update: updateComment.mutate,
-    delete: deleteComment.mutate,
+    deleteCmt: deleteComment.mutate,
     createError: createComment.isError,
     updateError: updateComment.isError,
     deleteError: deleteComment.isError,
+    getCommentChilds,
   };
 };
 

@@ -12,4 +12,5 @@ export type TPost = {
   likes?: TLike[];
   comments?: TComment[];
   isPublic: boolean;
-}
+  totalComment: number;
+};

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useRef, useState } from "react";
 import { format } from "date-fns";
 import {
   Dialog,
@@ -7,11 +7,10 @@ import {
   DialogHeader,
   DialogDescription,
   DialogTitle,
-  DialogFooter,
 } from "@/components/ui/dialog";
 import { TPost } from "@/types/post";
 import useLike from "@/hooks/useLike";
-import useComment from "@/hooks/useComment"; // Import the useComment hook
+import useComment from "@/hooks/useComment";
 import { TLike } from "@/types/like";
 import { Textarea } from "@/components/ui/textarea";
 import {
@@ -22,10 +21,19 @@ import {
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarImage } from "@/components/ui/avatar";
 import useChatStore from "@/store/chatStore";
-import roomStore, { Room } from "@/store/roomStore";
+import roomStore from "@/store/roomStore";
 import PhoneBookStore from "@/store/phoneBookStore";
-import { TComment } from "@/types/comment";
 import { TUser } from "@/types/user";
+import getTimeDifference from "@/hooks/useData";
+import { TComment } from "@/types/comment";
+import ResponseComment from "./ResponseComment";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { Ellipsis } from "lucide-react";
 
 interface PostDetailProps {
   post: TPost;
@@ -33,6 +41,9 @@ interface PostDetailProps {
   isExpanded: boolean;
   toggleExpand: (postId: string) => void;
 }
+type TOpenRepCmt = {
+  isOpenCmt: boolean;
+};
 
 const PostDetail = ({
   post,
@@ -41,13 +52,62 @@ const PostDetail = ({
   toggleExpand,
 }: PostDetailProps) => {
   const { like, unlike } = useLike();
-  const { create } = useComment(); // Destructure create from useComment
+  const { create, update, deleteCmt } = useComment(); // Destructure create from useComment
   const [commentContent, setCommentContent] = useState<string>(""); // State for comment input
   const userId = user.id;
   const isLike = post?.likes?.some((like: TLike) => like.user?.id === userId);
   const { setChat } = useChatStore();
   const { setRoom } = roomStore();
   const { setPage } = PhoneBookStore();
+  const latestCommentRef = useRef<HTMLDivElement | null>(null);
+  const [repLiesCmt, setRepLiesCmt] = useState<{ [key: string]: TOpenRepCmt }>(
+    {}
+  );
+  const [editingCommentId, setEditingCommentId] = useState<string | null>(null);
+  const [editedComment, setEditedComment] = useState<string>("");
+
+  const handleEdit = (commentId: string, defaultValue: string) => {
+    setEditingCommentId(commentId);
+    setEditedComment(defaultValue);
+  };
+
+  const handleCancelEdit = () => {
+    setEditingCommentId(null); // Thoát chế độ chỉnh sửa
+    setEditedComment(""); // Reset giá trị chỉnh sửa
+  };
+
+  const handleUpdateComment = (commentId: string) => {
+    if (!editedComment || editedComment.trim() === "") return;
+
+    // Gửi API cập nhật comment
+    update({ id: commentId, updatedComment: { content: editedComment } });
+
+    handleCancelEdit();
+  };
+
+  const handleDelteComment = (commentId: string) => {
+    if (!commentId) return;
+    deleteCmt(commentId);
+  };
+  const displayedAuthors = new Set<string>();
+  const [responses, setResponses] = useState<{ [key: string]: string }>({});
+
+  const handleInputChange = (commentId: string, value: string) => {
+    setResponses((prevResponses) => ({
+      ...prevResponses,
+      [commentId]: value, // Cập nhật giá trị của phản hồi cho commentId
+    }));
+  };
+
+  const toggleComment = (commentId: string) => {
+    setRepLiesCmt((prevState) => ({
+      ...prevState,
+      [commentId]: {
+        ...prevState[commentId],
+        isOpenCmt: !prevState[commentId]?.isOpenCmt,
+      },
+    }));
+  };
 
   const handleLikeToggle = () => {
     if (isLike) {
@@ -80,20 +140,37 @@ const PostDetail = ({
     setChat({ id, fullname, img });
   };
 
-  const handleCommentSubmit = async () => {
-    if (!commentContent.trim()) return;
-
+  const handleCommentSubmit = async (parentCommentId?: string) => {
     try {
-      await create({
-        content: commentContent,
-        postId: post.id,
-      });
-      setCommentContent("");
+      if (parentCommentId) {
+        if (!responses[parentCommentId].trim()) return;
+        await create({
+          content: responses[parentCommentId],
+          postId: post.id,
+          parentCommentId,
+        });
+        setResponses((prevResponses) => {
+          const newResponses = { ...prevResponses };
+          delete newResponses[parentCommentId];
+          return newResponses;
+        });
+      } else {
+        // Nếu không có parentCommentId, tạo comment gốc
+        if (!commentContent.trim()) return;
+        await create({
+          content: commentContent,
+          postId: post.id,
+        });
+        setCommentContent("");
+
+        if (latestCommentRef.current) {
+          latestCommentRef.current.scrollIntoView({ behavior: "smooth" });
+        }
+      }
     } catch (error) {
       console.error("Error submitting comment:", error);
     }
   };
-
   return (
     <div key={post.id} className="p-4 border-b pb-8">
       {/* Post header with author's info */}
@@ -265,21 +342,28 @@ const PostDetail = ({
               <div className="flex items-center space-x-1">
                 <HoverCard>
                   <HoverCardTrigger>
-                    <span className="hover:underline">
-                      {post?.comments?.length}
-                    </span>
+                    <span className="hover:underline">{post.totalComment}</span>
                   </HoverCardTrigger>
                   <HoverCardContent
                     className="text-sm text-left max-w-40 bg-gray-100 bg-opacity-90
             "
                   >
-                    {post?.comments?.map((comment: TComment) => (
-                      <h1 key={comment.id} className="py-1">
-                        {comment.author?.fullname.length > 18
-                          ? `${comment.author.fullname.slice(0, 15)}...`
-                          : comment.author.fullname}
-                      </h1>
-                    ))}
+                    {post?.comments?.map((comment: TComment) => {
+                      // Nếu author.id đã hiển thị thì không render bình luận này nữa
+                      if (displayedAuthors.has(comment.author.id)) {
+                        return null; // Không render comment này nếu author đã hiển thị
+                      }
+                      // Thêm author.id vào Set để đánh dấu đã hiển thị
+                      displayedAuthors.add(comment.author.id);
+
+                      return (
+                        <h1 key={comment.id} className="py-1">
+                          {comment.author?.fullname.length > 18
+                            ? `${comment.author.fullname.slice(0, 15)}...`
+                            : comment.author.fullname}
+                        </h1>
+                      );
+                    })}
                   </HoverCardContent>
                 </HoverCard>
                 <img
@@ -467,7 +551,7 @@ const PostDetail = ({
                       <HoverCard>
                         <HoverCardTrigger>
                           <span className="hover:underline  cursor-pointer">
-                            {post?.comments?.length}
+                            {post?.totalComment}
                           </span>
                         </HoverCardTrigger>
                         <HoverCardContent
@@ -491,42 +575,191 @@ const PostDetail = ({
                     </div>
                   )}
                 </div>
-
-                <div>
+                <div className="h-[1px] my-4  w-[99%] bg-gray-300"></div>
+                <div className="mt-5">
                   {/* display comment */}
-                  <div className="space-y-3">
-                    {post.comments?.map((comment: TComment) => (
-                      <div
-                        key={comment.id}
-                        className="flex items-start space-x-2"
-                      >
-                        <Avatar className="w-9 h-9 mt-2">
-                          <AvatarImage
-                            src={
-                              comment.author?.img ||
-                              "src/asset/avatarDefault.svg"
-                            }
-                            alt="User Avatar"
-                          />
-                        </Avatar>
-                        <div>
-                          <div className="bg-gray-200 p-2 rounded-xl">
-                            <div className="text-sm font-semibold">
-                              {comment.author?.fullname}
-                            </div>
-                            <p className="text-gray-80 text-[14px] py-[1px]">
-                              {comment.content}
-                            </p>
+                  <div className="space-y-3 ml-1 mt-4">
+                    {post.comments
+                      ?.filter((comment: TComment) => !comment.parentCommentId)
+                      .map((comment: TComment, index: number) => (
+                        <div
+                          ref={index === 0 ? latestCommentRef : null}
+                          key={comment.id}
+                        >
+                          <div className="flex items-start space-x-2">
+                            <Avatar className="w-9 h-9 mt-2">
+                              <AvatarImage
+                                src={
+                                  comment.author?.img ||
+                                  "src/asset/avatarDefault.svg"
+                                }
+                                alt="User Avatar"
+                              />
+                            </Avatar>
+                            {editingCommentId === comment.id ? (
+                              // Hiển thị Textarea khi đang chỉnh sửa
+                              <div className="relative my-2 w-[90%]">
+                                <Textarea
+                                  value={editedComment}
+                                  onChange={(e) =>
+                                    setEditedComment(e.target.value)
+                                  }
+                                  placeholder="Edit your comment..."
+                                  className="w-full px-3 py-1  h-16 border rounded-md focus:outline-none resize-none min-h-10"
+                                />
+                                {editedComment === comment.content ? (
+                                  <img
+                                    src="src/asset/sendcmt.svg"
+                                    className="h-7 w-7 py-1 z-50 rounded-md right-1 bottom-6 absolute cursor-pointer opacity-50 pointer-events-none"
+                                    alt="send message"
+                                  />
+                                ) : (
+                                  <img
+                                    onClick={() =>
+                                      handleUpdateComment(comment.id)
+                                    }
+                                    src="src/asset/ischecksendcmt.svg"
+                                    className="h-7 w-7 py-1 z-50 rounded-md right-1 bottom-6 absolute cursor-pointer"
+                                    alt="send message"
+                                  />
+                                )}
+                                <p className="text-[14px] text-gray-500 items-center ml-1 mt-1">
+                                  Nhấn để
+                                  <strong
+                                    onClick={handleCancelEdit}
+                                    className="ml-1 text-sm hover:underline text-blue-600 cursor-pointer"
+                                  >
+                                    hủy
+                                  </strong>
+                                  .
+                                </p>
+                              </div>
+                            ) : (
+                              // Hiển thị nội dung comment khi không chỉnh sửa
+                              <div>
+                                <div className="bg-gray-200 p-2 rounded-xl">
+                                  <div className="text-sm font-semibold">
+                                    {comment.author?.fullname}
+                                  </div>
+                                  <p className="text-gray-80 text-[14px] py-[1px]">
+                                    {comment.content}
+                                  </p>
+                                </div>
+                                <div className="flex space-x-3 text-[13px] text-gray-500 items-center ml-2 mt-1">
+                                  <div className="">
+                                    {getTimeDifference(comment.createdAt)}
+                                  </div>
+                                  <div
+                                    onClick={() => toggleComment(comment.id)}
+                                    className="cursor-pointer hover:underline"
+                                  >
+                                    Trả lời
+                                  </div>
+                                  <div>{comment.parentCommentId}</div>
+                                </div>
+                              </div>
+                            )}
+
+                            {editingCommentId === comment.id ? null : (
+                              <div className="">
+                                <DropdownMenu>
+                                  <DropdownMenuTrigger asChild>
+                                    <Button
+                                      variant="ghost"
+                                      className="p-2 h-full mt-3 rounded-full"
+                                    >
+                                      <Ellipsis className="h-5 w-5" />
+                                    </Button>
+                                  </DropdownMenuTrigger>
+                                  <DropdownMenuContent>
+                                    {/* Mở dialog xóa thành viên */}
+                                    <DropdownMenuItem
+                                      onClick={() =>
+                                        handleEdit(
+                                          comment.id,
+                                          comment.content || ""
+                                        )
+                                      }
+                                      className="cursor-pointer"
+                                    >
+                                      Chỉnh sửa
+                                    </DropdownMenuItem>
+                                    <DropdownMenuItem
+                                      onClick={() =>
+                                        handleDelteComment(comment.id)
+                                      }
+                                      className="cursor-pointer"
+                                    >
+                                      Xóa
+                                    </DropdownMenuItem>
+                                  </DropdownMenuContent>
+                                </DropdownMenu>
+                              </div>
+                            )}
                           </div>
-                          <div className="text-xs text-gray-500 ml-2 mt-1">
-                            {format(new Date(comment.createdAt), "dd MMM yyyy")}
+                          <ResponseComment comment={comment} postId={post.id} />
+                          <div>
+                            {repLiesCmt[comment.id]?.isOpenCmt == true ? (
+                              <div className=" bg-gray-100 flex items-center rounded-2xl mt-3 ml-10">
+                                <Avatar
+                                  className={`flex mr-2 justify-center  ${
+                                    user ? null : "bg-gray-400"
+                                  }`}
+                                >
+                                  <AvatarImage
+                                    className={`rounded-full ${
+                                      user.img ? "w-9 h-9" : "w-7 h-7"
+                                    }`}
+                                    src={
+                                      user.img || "src/asset/avatarDefault.svg"
+                                    }
+                                    alt="Avatar"
+                                  />
+                                </Avatar>
+                                <div className="relative my-2 w-full mr-3">
+                                  <Textarea
+                                    value={responses[comment.id] || ""}
+                                    onChange={(e) =>
+                                      handleInputChange(
+                                        comment.id,
+                                        e.target.value
+                                      )
+                                    }
+                                    placeholder="Add a comment..."
+                                    onKeyDown={(e) => {
+                                      if (e.key === "Enter" && !e.shiftKey) {
+                                        e.preventDefault(); // Ngăn Enter tạo dòng mới
+                                        handleCommentSubmit(comment?.id); // Gọi hàm gửi tin nhắn
+                                      }
+                                    }}
+                                    className="w-full px-3 py-1 h-16  border rounded-md focus:outline-none resize-none min-h-10"
+                                  />
+                                  {responses[comment?.id] === "" ? (
+                                    <img
+                                      src="src/asset/sendcmt.svg"
+                                      className="h-7 mt-2 w-7 py-1 z-50 rounded-md right-1 bottom-0 absolute cursor-pointer opacity-50 pointer-events-none"
+                                      alt="send message"
+                                    />
+                                  ) : (
+                                    <img
+                                      onClick={() =>
+                                        handleCommentSubmit(comment.id)
+                                      }
+                                      src="src/asset/ischecksendcmt.svg"
+                                      className="h-7 mt-2 w-7 py-1 z-50 rounded-md right-1 bottom-0 absolute cursor-pointer"
+                                      alt="send message"
+                                    />
+                                  )}
+                                </div>
+                              </div>
+                            ) : null}
                           </div>
                         </div>
-                      </div>
-                    ))}
+                      ))}
                   </div>
                 </div>
               </div>
+
               {/* input send cmt */}
               <div className=" bg-gray-100  flex items-center rounded-b-2xl">
                 <Avatar
@@ -557,14 +790,14 @@ const PostDetail = ({
                   />
                   {commentContent === "" ? (
                     <img
-                      onClick={handleCommentSubmit}
+                      onClick={() => handleCommentSubmit()}
                       src="src/asset/sendcmt.svg"
                       className="h-7 mt-2 w-7 py-1 z-50 rounded-md right-1 bottom-5 absolute cursor-pointer opacity-50 pointer-events-none"
                       alt="send message"
                     />
                   ) : (
                     <img
-                      onClick={handleCommentSubmit}
+                      onClick={() => handleCommentSubmit()}
                       src="src/asset/ischecksendcmt.svg"
                       className="h-7 mt-2 w-7 py-1 z-50 rounded-md right-1 bottom-5 absolute cursor-pointer"
                       alt="send message"
@@ -594,14 +827,14 @@ const PostDetail = ({
           />
           {commentContent === "" ? (
             <img
-              onClick={handleCommentSubmit}
+              onClick={() => handleCommentSubmit()}
               src="src/asset/sendcmt.svg"
               className="h-7 mt-2 w-7 py-1 z-50 rounded-md right-1 bottom-1 absolute cursor-pointer opacity-50 pointer-events-none"
               alt="send message"
             />
           ) : (
             <img
-              onClick={handleCommentSubmit}
+              onClick={() => handleCommentSubmit()}
               src="src/asset/ischecksendcmt.svg"
               className="h-7 mt-2 w-7 py-1 z-50 rounded-md right-1 bottom-1 absolute cursor-pointer"
               alt="send message"

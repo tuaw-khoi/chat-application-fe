@@ -86,8 +86,8 @@ const Post = () => {
       <div className="flex items-center px-2 pr-3 py-2">
         <Avatar className="bg-gray-400 flex justify-center items-center my-2">
           <AvatarImage
-            className="w-10 h-10"
-            src={user?.img || "/path/to/defaultAvatar.svg"}
+            className="w-7 h-7"
+            src={user?.img || "/src/asset/avatarDefault.svg"}
             alt="User Avatar"
           />
         </Avatar>
@@ -107,11 +107,11 @@ const Post = () => {
               <DialogTitle className="text-center">Tạo bài viết</DialogTitle>
             </DialogHeader>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-              <div className="flex items-center my-4">
-                <Avatar className="bg-gray-400 mr-2">
+              <div className="flex items-center my-4 space-x-2">
+                <Avatar className="bg-gray-400 flex justify-center items-center my-2">
                   <AvatarImage
-                    className="w-10 h-10"
-                    src={user?.img || "/path/to/defaultAvatar.svg"}
+                    className="w-8 h-8 "
+                    src={user?.img || "/src/asset/avatarDefault.svg"}
                     alt="User Avatar"
                   />
                 </Avatar>

@@ -41,6 +41,10 @@ interface PostDetailProps {
   isExpanded: boolean;
   toggleExpand: (postId: string) => void;
 }
+interface PostDetailProps {
+  post: TPost;
+  user: TUser;
+}
 type TOpenRepCmt = {
   isOpenCmt: boolean;
 };
@@ -660,7 +664,8 @@ const PostDetail = ({
                               </div>
                             )}
 
-                            {editingCommentId === comment.id ? null : (
+                            {(editingCommentId === comment.id) ||
+                            (comment.author.id !== userId) ? null : (
                               <div className="">
                                 <DropdownMenu>
                                   <DropdownMenuTrigger asChild>

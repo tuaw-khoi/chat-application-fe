@@ -34,7 +34,7 @@ export type TLoginResponse = {
 };
 
 export type TRegisterUser = {
-  fullName: string;
+  fullname: string;
   email: string;
   username: string;
   password: string;

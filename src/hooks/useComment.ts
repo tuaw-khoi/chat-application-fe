@@ -10,11 +10,7 @@ const useComment = () => {
       const response = await AxiosClient.post(`/comments`, newComment);
       return response.data as TComment;
     },
-    onSuccess: (data, variables) => {
-      queryClient.invalidateQueries({
-        queryKey: ["comments", variables.postId],
-      });
-    },
+    onSuccess: (data, variables) => {},
     onError: (error) => {
       console.error("Error creating comment:", error);
     },
@@ -31,11 +27,7 @@ const useComment = () => {
       const response = await AxiosClient.put(`/comments/${id}`, updatedComment);
       return response.data as TComment;
     },
-    onSuccess: (data, variables) => {
-      queryClient.invalidateQueries({
-        queryKey: ["comments", variables.id],
-      });
-    },
+    onSuccess: (data, variables) => {},
     onError: (error) => {
       console.error("Error updating comment:", error);
     },
@@ -45,11 +37,7 @@ const useComment = () => {
     mutationFn: async (id: string) => {
       await AxiosClient.delete(`/comments/${id}`);
     },
-    onSuccess: (data, variables) => {
-      queryClient.invalidateQueries({
-        queryKey: ["comments", variables],
-      });
-    },
+    onSuccess: (data, variables) => {},
     onError: (error) => {
       console.error("Error deleting comment:", error);
     },

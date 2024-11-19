@@ -14,6 +14,7 @@ import {
 import { Avatar, AvatarImage } from "@/components/ui/avatar";
 import Profile from "../../profile/profile";
 import { RefObject } from "react";
+import { useNavigate } from "react-router-dom";
 
 const Navbar = ({
   mainContentRef,
@@ -21,6 +22,7 @@ const Navbar = ({
   mainContentRef: RefObject<HTMLDivElement>;
 }) => {
   const { setPage, currentPage } = PhoneBookStore();
+  const navigate = useNavigate();
   const { setRoom } = roomStore();
   const getUserFromCookies = () => {
     const user = Cookies.get("user");
@@ -56,7 +58,9 @@ const Navbar = ({
   const handleLogout = () => {
     Cookies.remove("token");
     Cookies.remove("user");
+    Cookies.remove("refreshToken");
     setPage("home");
+    navigate("/");
   };
   return (
     <div

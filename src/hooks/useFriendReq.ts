@@ -47,10 +47,9 @@ const useFriendReq = () => {
   const checkFriendRequestStatus = async (userId1: string, userId2: string) => {
     const response = await AxiosClient.get(`/friend-requests/status`, {
       params: { userId1, userId2 },
-    })
+    });
     return response.data;
   };
-
 
   const check = (userId1: string, userId2: string) => {
     const { data, isPending, error } = useQuery({
@@ -88,12 +87,33 @@ const useFriendReq = () => {
     },
   });
 
+  const suggestFriends = (userId: string) => {
+    const { data, error, isLoading } = useQuery({
+      queryKey: ["suggestFriends", userId], // Gắn userId vào queryKey để cache
+      queryFn: async () => {
+        if (!userId) {
+          throw new Error("UserId is required");
+        }
+        // Gửi userId qua query parameters
+        const response = await AxiosClient.get(`/friend-requests/suggestions`, {
+          params: { userId },
+        });
+        return response.data;
+      },
+      refetchOnWindowFocus: false,
+      enabled: !!userId, // Chỉ thực hiện query nếu userId tồn tại
+    });
+
+    return { data, error, isLoading };
+  };
+
   return {
     useFriendRequests,
     acceptFriendRequest,
     checkFriendRequestStatus,
     cancelFriendRequest,
     check,
+    suggestFriends,
   };
 };
 

@@ -1,6 +1,6 @@
 import ListPost from "./ListPost";
 import Noti from "./Noti";
-import Post from "./post";
+import Post from "./Post";
 import RecommendAddFr from "./RecommendAddFr";
 
 const Homepage = () => {
@@ -14,9 +14,11 @@ const Homepage = () => {
             <ListPost />
           </div>
         </div>
-        <div className="w-[20%] bg-white rounded-2xl fixed right-24 h-[97.5dvh]">
-          <Noti />
-          <RecommendAddFr />
+        <div className="w-[20%] bg-gray-200 rounded-2xl fixed right-24 h-[97.5dvh] space-y-5">
+          <div className=" h-full rounded-2xl flex flex-col space-y-5">
+            <Noti />
+            <RecommendAddFr />
+          </div>
         </div>
       </div>
     </div>

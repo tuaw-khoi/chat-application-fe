@@ -20,6 +20,21 @@ const useFriendReq = () => {
     return { data, error, isLoading };
   };
 
+  const useGetSentFriendRequests = (userId: string) => {
+    const { data, error, isLoading } = useQuery({
+      queryKey: ["sentFriendRequests", userId],
+      queryFn: async () => {
+        const response = await AxiosClient.get(
+          `/friend-requests/sent?userId=${userId}`
+        );
+        return response.data;
+      },
+      staleTime: 0,
+      refetchInterval: 1000,
+    });
+    return { data, error, isLoading };
+  };
+
   // Hàm chấp nhận hoặc từ chối lời mời kết bạn
   const acceptFriendRequest = useMutation({
     mutationFn: async ({
@@ -81,6 +96,9 @@ const useFriendReq = () => {
     },
     onSuccess: () => {
       // Cập nhật state hoặc làm mới danh sách nếu cần
+      queryClient.invalidateQueries({
+        queryKey: ["sentFriendRequests"],
+      });
     },
     onError: (error: any) => {
       console.error("Error cancelling friend request:", error);
@@ -114,6 +132,7 @@ const useFriendReq = () => {
     cancelFriendRequest,
     check,
     suggestFriends,
+    useGetSentFriendRequests,
   };
 };
 

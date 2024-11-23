@@ -88,11 +88,16 @@ const ResponseComment = ({ comment, postId }: TRescmt) => {
                   <Avatar className="h-7 w-7">
                     <AvatarImage
                       className=""
-                      src={reply.author.img || "src/asset/avatarDefault.svg"}
+                      src={
+                        reply.author.img !== null
+                          ? reply.author.img
+                          : "https://res.cloudinary.com/dfua5nwki/image/upload/v1732396647/chat-app/nawccyq44xjqwf6lrcyy.svg"
+                      }
                       alt="Avatar"
                     />
                   </Avatar>
                   <div className="ml-3 bg-gray-200  p-2 rounded-xl pr-4">
+                    <img alt="" />
                     <p className="font-medium text-sm">
                       {reply.author.fullname}
                     </p>
@@ -123,7 +128,10 @@ const ResponseComment = ({ comment, postId }: TRescmt) => {
                           className={`rounded-full ${
                             user.img ? "w-9 h-9" : "w-7 h-7"
                           }`}
-                          src={user.img || "src/asset/avatarDefault.svg"}
+                          src={
+                            user.img ||
+                            "https://res.cloudinary.com/dfua5nwki/image/upload/v1732396647/chat-app/nawccyq44xjqwf6lrcyy.svg"
+                          }
                           alt="Avatar"
                         />
                       </Avatar>
@@ -145,14 +153,14 @@ const ResponseComment = ({ comment, postId }: TRescmt) => {
                         {responses[reply?.id] === "" ||
                         !responses[reply?.id] ? (
                           <img
-                            src="src/asset/sendcmt.svg"
+                            src="https://res.cloudinary.com/dfua5nwki/image/upload/v1732396722/chat-app/amg4wnurzmohynhkmgjl.svg"
                             className="h-7 mt-2 w-7 py-1 z-50 rounded-md right-1 bottom-0 absolute cursor-pointer opacity-50 pointer-events-none"
                             alt="send message"
                           />
                         ) : (
                           <img
                             onClick={() => handleCommentSubmit(reply.id)}
-                            src="src/asset/ischecksendcmt.svg"
+                            src="https://res.cloudinary.com/dfua5nwki/image/upload/v1732397023/chat-app/qxa7dfnhq3vwxn8hlono.svg"
                             className="h-7 mt-2 w-7 py-1 z-50 rounded-md right-1 bottom-0 absolute cursor-pointer"
                             alt="send message"
                           />

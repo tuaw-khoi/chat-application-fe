@@ -16,6 +16,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Ellipsis } from "lucide-react";
 import useRoom from "@/hooks/useRoom";
+import { useNavigate } from "react-router-dom";
 
 export type Member = {
   id: number;
@@ -34,6 +35,11 @@ type MemberOfGroupProps = {
 };
 
 const MemberOfGroup = ({ members, roomId }: MemberOfGroupProps) => {
+  const navigate = useNavigate();
+
+  const handleNavigate = (userId: string) => {
+    navigate(`/profile/${userId}`);
+  };
   const [memberList, setMemberList] = useState(members);
   const [selectedMember, setSelectedMember] = useState<Member | null>(null);
   const [openDialog, setOpenDialog] = useState(false);
@@ -76,7 +82,10 @@ const MemberOfGroup = ({ members, roomId }: MemberOfGroupProps) => {
         {memberList.length > 0 ? (
           memberList.map((member) => (
             <div key={member.user.id} className="flex items-center py-2 px-2">
-              <Avatar className="bg-gray-400 flex justify-center items-center ml-2 mr-5">
+              <Avatar
+                onClick={() => handleNavigate(member.user.id)}
+                className="bg-gray-400 flex justify-center items-center ml-2 mr-5 cursor-pointer"
+              >
                 <AvatarImage
                   className="w-8 h-8"
                   src={member.user.img || "src/asset/avatarDefault.svg"}
@@ -84,7 +93,12 @@ const MemberOfGroup = ({ members, roomId }: MemberOfGroupProps) => {
                 />
               </Avatar>
               <div className="border-b flex-grow pt-2 pb-3 border-gray-300">
-                <p className="font-medium">{member.user.fullname}</p>
+                <p
+                  onClick={() => handleNavigate(member.user.id)}
+                  className="font-medium cursor-pointer hover:underline"
+                >
+                  {member.user.fullname}
+                </p>
                 {member.isAdmin ? (
                   <span className="text-xs text-blue-500">Admin</span>
                 ) : (

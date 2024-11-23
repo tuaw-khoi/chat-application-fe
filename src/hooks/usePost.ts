@@ -51,6 +51,9 @@ const usePost = () => {
       },
       onSuccess: () => {
         queryClient.invalidateQueries({ queryKey: ["postsForUserAndFriends"] });
+        queryClient.invalidateQueries({
+          queryKey: ["postsForUser"],
+        });
       },
       onError: (error) => {
         console.error("Error creating post:", error);
@@ -74,6 +77,7 @@ const usePost = () => {
         const response = await AxiosClient.get(`/posts/${postId}`);
         return response.data;
       },
+      refetchInterval: 2000,
       staleTime: 0,
       enabled: !!postId,
     });
@@ -142,6 +146,27 @@ const usePost = () => {
     });
   };
 
+  const useInfinitePostsForUser = (userId: string) => {
+    return useInfiniteQuery<GetPostsResponse, Error>({
+      queryKey: ["postsForUser", userId], // Thêm userId vào queryKey để cache theo userId
+      queryFn: async ({ pageParam = 1 }: { pageParam?: number }) => {
+        const response = await AxiosClient.get(`/posts/allPost`, {
+          params: {
+            userId, // Thêm userId vào tham số truy vấn
+            page: pageParam,
+            limit: 10,
+          },
+        });
+        return response.data;
+      },
+      refetchInterval: 1000,
+      getNextPageParam: (lastPage: any) =>
+        lastPage.currentPage < lastPage.totalPages
+          ? Number(lastPage.currentPage) + 1
+          : undefined,
+    });
+  };
+
   return {
     usePostsForUser,
     useCreatePost,
@@ -149,6 +174,7 @@ const usePost = () => {
     useUpdatePost,
     useDeletePost,
     useInfinitePostsForUserAndFriends,
+    useInfinitePostsForUser,
   };
 };
 

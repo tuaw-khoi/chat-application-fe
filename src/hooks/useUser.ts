@@ -35,8 +35,7 @@ const useUser = () => {
       );
       return response.data;
     },
-    onSuccess: () => {
-    },
+    onSuccess: () => {},
     onError: (error) => {
       console.error("Error changing password:", error);
     },
@@ -55,10 +54,37 @@ const useUser = () => {
       setSearchUser(data);
     },
   });
+  const getUserInfo = (userId: string) =>
+    useQuery({
+      queryKey: ["userInfo", userId],
+      queryFn: async () => {
+        if (!userId) {
+          throw new Error("User ID is required.");
+        }
+        const response = await AxiosClient.get(`user/${userId}/info`);
+        return response.data;
+      },
+    });
 
-  return {updateProfile,
+  const getUser = (userId: string) =>
+    useQuery({
+      queryKey: ["user", userId],
+      queryFn: async () => {
+        if (!userId) {
+          throw new Error("User ID is required.");
+        }
+        const response = await AxiosClient.get(`user/${userId}`);
+        return response.data;
+      },
+      enabled: !!userId, // Chỉ gọi API nếu có userId
+    });
+
+  return {
+    updateProfile,
     changePassword,
     searchNewFriend,
+    getUserInfo,
+    getUser,
   };
 };
 

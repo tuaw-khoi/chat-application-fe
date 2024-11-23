@@ -24,11 +24,9 @@ const Authentication = () => {
   useEffect(() => {
     const fetchUserData = async () => {
       const token = Cookies.get("token");
-
       if (!token || isTokenExpired(token)) {
         try {
           const user = await refreshLogin();
-
           if (!user) {
             navigate("/");
             return;
@@ -45,12 +43,25 @@ const Authentication = () => {
             setAuthen(true);
             navigate("/admin");
           } else if (user.role === "USER") {
+            navigate("/home");
             setAuthen(true);
             setIsAdmin(0);
           }
         } catch (error) {
           console.error("Error refreshing login:", error);
-          navigate("/"); // Nếu làm mới token thất bại, điều hướng về trang chính
+          navigate("/");
+        }
+      } else {
+        const userCookie = Cookies.get("user");
+        const user = userCookie ? JSON.parse(userCookie) : "";
+        if (user.role === "ADMIN") {
+          setIsAdmin(1);
+          setAuthen(true);
+          navigate("/admin");
+        } else if (user.role === "USER") {
+          navigate("/home");
+          setAuthen(true);
+          setIsAdmin(0);
         }
       }
     };

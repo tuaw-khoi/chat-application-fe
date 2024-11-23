@@ -34,6 +34,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Ellipsis } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 interface PostDetailProps {
   post: TPost;
@@ -55,6 +56,11 @@ const PostDetail = ({
   isExpanded,
   toggleExpand,
 }: PostDetailProps) => {
+  const navigate = useNavigate();
+
+  const handleNavigate = (userId: string) => {
+    navigate(`/profile/${userId}`);
+  };
   const { like, unlike } = useLike();
   const { create, update, deleteCmt } = useComment(); // Destructure create from useComment
   const [commentContent, setCommentContent] = useState<string>(""); // State for comment input
@@ -180,12 +186,22 @@ const PostDetail = ({
       {/* Post header with author's info */}
       <div className="flex items-center mb-2">
         <img
-          src={post.author.img || "src/asset/avatarDefault.svg"}
+          onClick={() => handleNavigate(post.author?.id)}
+          src={
+            post.author?.img === null
+              ? "https://res.cloudinary.com/dfua5nwki/image/upload/v1732396647/chat-app/nawccyq44xjqwf6lrcyy.svg"
+              : post.author?.img
+          }
           alt={post.author?.fullname}
-          className="w-8 h-8 rounded-full"
+          className="w-8 h-8 rounded-full cursor-pointer"
         />
         <div className="ml-3">
-          <div className="font-semibold">{post.author?.fullname}</div>
+          <div
+            onClick={() => handleNavigate(post.author?.id)}
+            className="font-semibold hover:underline cursor-pointer"
+          >
+            {post.author?.fullname}
+          </div>
           <div className="text-xs text-gray-500">
             {format(new Date(post.createdAt), "dd MMM yyyy")}
           </div>
@@ -194,12 +210,12 @@ const PostDetail = ({
 
       {/* Post content */}
       <div className="text-gray-800 mb-2">
-        {post.content.length <= 500 || isExpanded
+        {post?.content.length <= 500 || isExpanded
           ? post.content
           : `${post.content.substring(0, 500)}...`}
-        {post.content.length > 500 && (
+        {post?.content.length > 500 && (
           <button
-            onClick={() => toggleExpand(post.id)}
+            onClick={() => toggleExpand(post?.id)}
             className="text-blue-500 ml-2"
           >
             {isExpanded ? "Thu gọn" : "Xem thêm"}
@@ -234,13 +250,13 @@ const PostDetail = ({
             {isLike ? (
               <img
                 onClick={handleLikeToggle}
-                src="src/asset/likeisticker.svg"
+                src="https://res.cloudinary.com/dfua5nwki/image/upload/v1732396715/chat-app/xcyktrkmc3ebjpqyess4.svg"
                 alt="Liked"
               />
             ) : (
               <img
                 onClick={handleLikeToggle}
-                src="src/asset/like.svg"
+                src="https://res.cloudinary.com/dfua5nwki/image/upload/v1732396711/chat-app/izvmdj98lgln1xnxiulx.svg"
                 alt="Like"
               />
             )}
@@ -267,7 +283,11 @@ const PostDetail = ({
             "
                   >
                     {post?.likes?.map((like: TLike) => (
-                      <h1 key={like.id} className="py-1">
+                      <h1
+                        onClick={() => handleNavigate(like?.user.id)}
+                        key={like.id}
+                        className="py-2 px-1 cursor-pointer hover:bg-white text-nowrap"
+                      >
                         {like.user.fullname.length > 18
                           ? `${like.user.fullname.slice(0, 15)}...`
                           : like.user.fullname}
@@ -289,7 +309,8 @@ const PostDetail = ({
                     >
                       <div className="flex items-center space-x-2">
                         <Avatar
-                          className={`flex mr-2 justify-center items-center ${
+                          onClick={() => handleNavigate(like?.user.id)}
+                          className={`flex mr-2 justify-center items-center cursor-pointer ${
                             like.user.img ? null : "bg-gray-400"
                           }`}
                         >
@@ -297,11 +318,17 @@ const PostDetail = ({
                             className={`rounded-full ${
                               like.user.img ? "w-9 h-9" : "w-7 h-7"
                             }`}
-                            src={like.user.img || "src/asset/avatarDefault.svg"}
+                            src={
+                              like.user.img ||
+                              "https://res.cloudinary.com/dfua5nwki/image/upload/v1732396647/chat-app/nawccyq44xjqwf6lrcyy.svg"
+                            }
                             alt="Avatar"
                           />
                         </Avatar>
-                        <h2 className="hover:underline cursor-pointer">
+                        <h2
+                          onClick={() => handleNavigate(like?.user.id)}
+                          className="hover:underline cursor-pointer"
+                        >
                           {like.user.fullname}
                         </h2>
                       </div>
@@ -361,7 +388,11 @@ const PostDetail = ({
                       displayedAuthors.add(comment.author.id);
 
                       return (
-                        <h1 key={comment.id} className="py-1">
+                        <h1
+                          onClick={() => handleNavigate(comment?.author.id)}
+                          key={comment.id}
+                          className="py-2 px-1 cursor-pointer hover:bg-white text-nowrap"
+                        >
                           {comment.author?.fullname.length > 18
                             ? `${comment.author.fullname.slice(0, 15)}...`
                             : comment.author.fullname}
@@ -372,7 +403,7 @@ const PostDetail = ({
                 </HoverCard>
                 <img
                   className="w-7"
-                  src="src/asset/comment.svg"
+                  src="https://res.cloudinary.com/dfua5nwki/image/upload/v1732396733/chat-app/c5t0xoddpxc58i92wcxq.svg"
                   alt="Comment"
                 />
               </div>
@@ -384,12 +415,21 @@ const PostDetail = ({
               <div className="overflow-y-auto max-w-[100dvh] max-h-[60dvh] pl-3">
                 <div className="flex items-center mb-2">
                   <img
-                    src={post.author.img || "src/asset/avatarDefault.svg"}
+                    onClick={() => handleNavigate(post?.author.id)}
+                    src={
+                      post.author.img ||
+                      "https://res.cloudinary.com/dfua5nwki/image/upload/v1732396647/chat-app/nawccyq44xjqwf6lrcyy.svg"
+                    }
                     alt={post.author?.fullname}
-                    className="w-8 h-8 rounded-full"
+                    className="w-8 h-8 rounded-full cursor-pointer"
                   />
                   <div className="ml-3">
-                    <div className="font-semibold">{post.author?.fullname}</div>
+                    <div
+                      onClick={() => handleNavigate(post?.author.id)}
+                      className="font-semibold"
+                    >
+                      {post.author?.fullname}
+                    </div>
                     <div className="text-xs text-gray-500">
                       {format(new Date(post.createdAt), "dd MMM yyyy")}
                     </div>
@@ -440,13 +480,13 @@ const PostDetail = ({
                       {isLike ? (
                         <img
                           onClick={handleLikeToggle}
-                          src="src/asset/likeisticker.svg"
+                          src="https://res.cloudinary.com/dfua5nwki/image/upload/v1732396715/chat-app/xcyktrkmc3ebjpqyess4.svg"
                           alt="Liked"
                         />
                       ) : (
                         <img
                           onClick={handleLikeToggle}
-                          src="src/asset/like.svg"
+                          src="https://res.cloudinary.com/dfua5nwki/image/upload/v1732396711/chat-app/izvmdj98lgln1xnxiulx.svg"
                           alt="Like"
                         />
                       )}
@@ -473,7 +513,11 @@ const PostDetail = ({
             "
                             >
                               {post?.likes?.map((like: TLike) => (
-                                <h1 key={like.id} className="py-1">
+                                <h1
+                                  onClick={() => handleNavigate(like?.user.id)}
+                                  key={like.id}
+                                  className="py-2 px-1 text-nowrap hover:bg-white"
+                                >
                                   {like.user.fullname.length > 18
                                     ? `${like.user.fullname.slice(0, 15)}...`
                                     : like.user.fullname}
@@ -495,7 +539,10 @@ const PostDetail = ({
                               >
                                 <div className="flex items-center space-x-2">
                                   <Avatar
-                                    className={`flex mr-2 justify-center items-center ${
+                                    onClick={() =>
+                                      handleNavigate(like?.user.id)
+                                    }
+                                    className={`flex mr-2 justify-center items-center cursor-pointer ${
                                       like.user.img ? null : "bg-gray-400"
                                     }`}
                                   >
@@ -505,12 +552,17 @@ const PostDetail = ({
                                       }`}
                                       src={
                                         like.user.img ||
-                                        "src/asset/avatarDefault.svg"
+                                        "https://res.cloudinary.com/dfua5nwki/image/upload/v1732396647/chat-app/nawccyq44xjqwf6lrcyy.svg"
                                       }
                                       alt="Avatar"
                                     />
                                   </Avatar>
-                                  <h2 className="hover:underline cursor-pointer">
+                                  <h2
+                                    onClick={() =>
+                                      handleNavigate(like?.user.id)
+                                    }
+                                    className="hover:underline cursor-pointer"
+                                  >
                                     {like.user.fullname}
                                   </h2>
                                 </div>
@@ -563,7 +615,11 @@ const PostDetail = ({
             "
                         >
                           {post?.comments?.map((comment: TComment) => (
-                            <h1 key={comment.id} className="py-1">
+                            <h1
+                              onClick={() => handleNavigate(comment?.author.id)}
+                              key={comment.id}
+                              className="py-2 px-2 hover:bg-white text-nowrap cursor-pointer"
+                            >
                               {comment.author?.fullname.length > 18
                                 ? `${comment.author.fullname.slice(0, 15)}...`
                                 : comment.author.fullname}
@@ -573,7 +629,7 @@ const PostDetail = ({
                       </HoverCard>
                       <img
                         className="w-7"
-                        src="src/asset/comment.svg"
+                        src="https://res.cloudinary.com/dfua5nwki/image/upload/v1732396733/chat-app/c5t0xoddpxc58i92wcxq.svg"
                         alt="Comment"
                       />
                     </div>
@@ -591,11 +647,14 @@ const PostDetail = ({
                           key={comment.id}
                         >
                           <div className="flex items-start space-x-2">
-                            <Avatar className="w-9 h-9 mt-2">
+                            <Avatar
+                              onClick={() => handleNavigate(comment?.author.id)}
+                              className="w-9 h-9 mt-2 cursor-pointer"
+                            >
                               <AvatarImage
                                 src={
                                   comment.author?.img ||
-                                  "src/asset/avatarDefault.svg"
+                                  "https://res.cloudinary.com/dfua5nwki/image/upload/v1732396647/chat-app/nawccyq44xjqwf6lrcyy.svg"
                                 }
                                 alt="User Avatar"
                               />
@@ -613,7 +672,7 @@ const PostDetail = ({
                                 />
                                 {editedComment === comment.content ? (
                                   <img
-                                    src="src/asset/sendcmt.svg"
+                                    src="https://res.cloudinary.com/dfua5nwki/image/upload/v1732396722/chat-app/amg4wnurzmohynhkmgjl.svg"
                                     className="h-7 w-7 py-1 z-50 rounded-md right-1 bottom-6 absolute cursor-pointer opacity-50 pointer-events-none"
                                     alt="send message"
                                   />
@@ -622,7 +681,7 @@ const PostDetail = ({
                                     onClick={() =>
                                       handleUpdateComment(comment.id)
                                     }
-                                    src="src/asset/ischecksendcmt.svg"
+                                    src="https://res.cloudinary.com/dfua5nwki/image/upload/v1732397023/chat-app/qxa7dfnhq3vwxn8hlono.svg"
                                     className="h-7 w-7 py-1 z-50 rounded-md right-1 bottom-6 absolute cursor-pointer"
                                     alt="send message"
                                   />
@@ -642,7 +701,12 @@ const PostDetail = ({
                               // Hiển thị nội dung comment khi không chỉnh sửa
                               <div>
                                 <div className="bg-gray-200 p-2 rounded-xl">
-                                  <div className="text-sm font-semibold">
+                                  <div
+                                    onClick={() =>
+                                      handleNavigate(comment?.author.id)
+                                    }
+                                    className="text-sm font-semibold cursor-pointer hover:underline"
+                                  >
                                     {comment.author?.fullname}
                                   </div>
                                   <p className="text-gray-80 text-[14px] py-[1px]">
@@ -664,8 +728,8 @@ const PostDetail = ({
                               </div>
                             )}
 
-                            {(editingCommentId === comment.id) ||
-                            (comment.author.id !== userId) ? null : (
+                            {editingCommentId === comment.id ||
+                            comment.author.id !== userId ? null : (
                               <div className="">
                                 <DropdownMenu>
                                   <DropdownMenuTrigger asChild>
@@ -677,7 +741,7 @@ const PostDetail = ({
                                     </Button>
                                   </DropdownMenuTrigger>
                                   <DropdownMenuContent>
-                                    {/* Mở dialog xóa thành viên */}
+                                    {/* Mở dialog xóa*/}
                                     <DropdownMenuItem
                                       onClick={() =>
                                         handleEdit(
@@ -707,7 +771,8 @@ const PostDetail = ({
                             {repLiesCmt[comment.id]?.isOpenCmt == true ? (
                               <div className=" bg-gray-100 flex items-center rounded-2xl mt-3 ml-10">
                                 <Avatar
-                                  className={`flex mr-2 justify-center  ${
+                                  onClick={() => handleNavigate(user.id)}
+                                  className={`flex mr-2 justify-center cursor-pointer  ${
                                     user ? null : "bg-gray-400"
                                   }`}
                                 >
@@ -716,7 +781,8 @@ const PostDetail = ({
                                       user.img ? "w-9 h-9" : "w-7 h-7"
                                     }`}
                                     src={
-                                      user.img || "src/asset/avatarDefault.svg"
+                                      user.img ||
+                                      "https://res.cloudinary.com/dfua5nwki/image/upload/v1732396647/chat-app/nawccyq44xjqwf6lrcyy.svg"
                                     }
                                     alt="Avatar"
                                   />
@@ -739,9 +805,10 @@ const PostDetail = ({
                                     }}
                                     className="w-full px-3 py-1 h-16  border rounded-md focus:outline-none resize-none min-h-10"
                                   />
-                                  {responses[comment?.id] === "" ? (
+                                  {responses[comment?.id] === "" ||
+                                  responses[comment?.id] === undefined ? (
                                     <img
-                                      src="src/asset/sendcmt.svg"
+                                      src="https://res.cloudinary.com/dfua5nwki/image/upload/v1732396722/chat-app/amg4wnurzmohynhkmgjl.svg"
                                       className="h-7 mt-2 w-7 py-1 z-50 rounded-md right-1 bottom-0 absolute cursor-pointer opacity-50 pointer-events-none"
                                       alt="send message"
                                     />
@@ -750,7 +817,7 @@ const PostDetail = ({
                                       onClick={() =>
                                         handleCommentSubmit(comment.id)
                                       }
-                                      src="src/asset/ischecksendcmt.svg"
+                                      src="https://res.cloudinary.com/dfua5nwki/image/upload/v1732397023/chat-app/qxa7dfnhq3vwxn8hlono.svg"
                                       className="h-7 mt-2 w-7 py-1 z-50 rounded-md right-1 bottom-0 absolute cursor-pointer"
                                       alt="send message"
                                     />
@@ -768,7 +835,8 @@ const PostDetail = ({
               {/* input send cmt */}
               <div className=" bg-gray-100  flex items-center rounded-b-2xl">
                 <Avatar
-                  className={`flex mr-2 justify-center items-center mb-5 ${
+                  onClick={() => handleNavigate(user.id)}
+                  className={`flex mr-2 justify-center cursor-pointer pl-1 items-center mb-5 ${
                     user ? null : "bg-gray-400"
                   }`}
                 >
@@ -776,7 +844,11 @@ const PostDetail = ({
                     className={`rounded-full ${
                       user.img ? "w-9 h-9" : "w-7 h-7"
                     }`}
-                    src={user.img || "src/asset/avatarDefault.svg"}
+                    src={
+                      user.img !== null
+                        ? user.img
+                        : "https://res.cloudinary.com/dfua5nwki/image/upload/v1732396647/chat-app/nawccyq44xjqwf6lrcyy.svg"
+                    }
                     alt="Avatar"
                   />
                 </Avatar>
@@ -796,14 +868,14 @@ const PostDetail = ({
                   {commentContent === "" ? (
                     <img
                       onClick={() => handleCommentSubmit()}
-                      src="src/asset/sendcmt.svg"
+                      src="https://res.cloudinary.com/dfua5nwki/image/upload/v1732396722/chat-app/amg4wnurzmohynhkmgjl.svg"
                       className="h-7 mt-2 w-7 py-1 z-50 rounded-md right-1 bottom-5 absolute cursor-pointer opacity-50 pointer-events-none"
                       alt="send message"
                     />
                   ) : (
                     <img
                       onClick={() => handleCommentSubmit()}
-                      src="src/asset/ischecksendcmt.svg"
+                      src="https://res.cloudinary.com/dfua5nwki/image/upload/v1732397023/chat-app/qxa7dfnhq3vwxn8hlono.svg"
                       className="h-7 mt-2 w-7 py-1 z-50 rounded-md right-1 bottom-5 absolute cursor-pointer"
                       alt="send message"
                     />
@@ -833,14 +905,14 @@ const PostDetail = ({
           {commentContent === "" ? (
             <img
               onClick={() => handleCommentSubmit()}
-              src="src/asset/sendcmt.svg"
+              src="https://res.cloudinary.com/dfua5nwki/image/upload/v1732396722/chat-app/amg4wnurzmohynhkmgjl.svg"
               className="h-7 mt-2 w-7 py-1 z-50 rounded-md right-1 bottom-1 absolute cursor-pointer opacity-50 pointer-events-none"
               alt="send message"
             />
           ) : (
             <img
               onClick={() => handleCommentSubmit()}
-              src="src/asset/ischecksendcmt.svg"
+              src="https://res.cloudinary.com/dfua5nwki/image/upload/v1732397023/chat-app/qxa7dfnhq3vwxn8hlono.svg"
               className="h-7 mt-2 w-7 py-1 z-50 rounded-md right-1 bottom-1 absolute cursor-pointer"
               alt="send message"
             />

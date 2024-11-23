@@ -19,6 +19,7 @@ import Cookies from "js-cookie";
 import { useState } from "react";
 import { Input } from "@/components/ui/input";
 import { useForm } from "react-hook-form";
+import { useNavigate } from "react-router-dom";
 
 type Message = {
   id: number;
@@ -32,6 +33,11 @@ interface updateNameForm {
 }
 
 const Directory = () => {
+  const navigate = useNavigate();
+
+  const handleNavigate = (userId: string) => {
+    navigate(`/profile/${userId}`);
+  };
   const { roomIsChoiced, setRoom } = roomStore();
   const { chatIsChoiced } = useChatStore();
   const { useRoomDetailsWithImages, leaveRoom, useUpdateRoomName } = useRoom();
@@ -273,7 +279,14 @@ const Directory = () => {
                   <DialogHeader>
                     <DialogTitle>Thông tin người dùng</DialogTitle>
                     <div className="flex items-center space-x-3">
-                      <Avatar className="w-12 h-12">
+                      <Avatar
+                        onClick={() => {
+                          if (otherUser?.user?.id) {
+                            handleNavigate(otherUser.user.id);
+                          }
+                        }}
+                        className="w-12 h-12 cursor-pointer"
+                      >
                         <AvatarImage
                           src={
                             otherUser?.user?.img ||
@@ -283,7 +296,14 @@ const Directory = () => {
                         />
                       </Avatar>
                       <div>
-                        <p className="font-semibold">
+                        <p
+                          onClick={() => {
+                            if (otherUser?.user?.id) {
+                              handleNavigate(otherUser.user.id);
+                            }
+                          }}
+                          className="font-semibold cursor-pointer hover:underline"
+                        >
                           {otherUser?.user?.fullname}
                         </p>
                         <p className="font-semibold">

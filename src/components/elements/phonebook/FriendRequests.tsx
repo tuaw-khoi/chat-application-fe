@@ -1,13 +1,32 @@
 import React from "react";
 import useFriendReq from "@/hooks/useFriendReq";
 import Cookies from "js-cookie";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import { Avatar, AvatarImage } from "@/components/ui/avatar";
+import { Button } from "@/components/ui/button";
 
 const FriendRequests = () => {
-  const { useFriendRequests, acceptFriendRequest } = useFriendReq();
+  const {
+    useFriendRequests,
+    acceptFriendRequest,
+    useGetSentFriendRequests,
+    cancelFriendRequest,
+  } = useFriendReq();
   const userCookie = Cookies.get("user");
   const storedUser = userCookie ? JSON.parse(userCookie) : null;
   const userId = storedUser?.id;
   const { data, error, isLoading } = useFriendRequests(userId);
+  const { data: sentFrReq } = useGetSentFriendRequests(userId);
+
+  const handleCannelFriendReq = (friendId: string) => {
+    cancelFriendRequest.mutate({ userId, friendId });
+  };
 
   // Hàm xử lý chấp nhận lời mời kết bạn
   const handleAccept = (requestId: number) => {
@@ -26,9 +45,58 @@ const FriendRequests = () => {
       </h2>
 
       <div className="mt-3 mx-6 bg-white h-full overflow-y-auto">
-        <h3 className="font-medium pl-2 pt-2 bg-gray-200 pb-3">
-          Lời mời kết bạn ({data?.length})
-        </h3>
+        <div className="flex justify-between bg-gray-200">
+          <h3 className="font-medium pl-2 pt-2  pb-3">
+            Lời mời kết bạn ({data?.length})
+          </h3>
+          <Dialog>
+            <DialogTrigger className="font-normal mr-5 pt-2 pb-3 text-blue-600 hover:underline">
+              Lời mời kết bạn đã gửi
+            </DialogTrigger>
+
+            <DialogContent>
+              <DialogTitle> Lời mời kết bạn đã gửi</DialogTitle>
+              <DialogDescription></DialogDescription>
+              <div className="h-[100%] overflow-y-auto">
+                {sentFrReq?.map((friendReq: any) => (
+                  <div className="flex justify-between items-center hover:bg-gray-200 p-2">
+                    <div className="flex items-center">
+                      <Avatar
+                        className={`flex justify-center items-center cursor-pointer ${
+                          friendReq.receiver?.img ===
+                          "src/asset/avatarDefault.svg"
+                            ? "bg-gray-400"
+                            : ""
+                        } w-7 h-7`}
+                      >
+                        <AvatarImage
+                          className="w-full h-full rounded-full"
+                          src={
+                            friendReq.receiver?.img ||
+                            "/src/asset/avatarDefault.svg"
+                          }
+                          alt="User Avatar"
+                        />
+                      </Avatar>
+                      <h2>{friendReq.receiver?.fullname}</h2>
+                    </div>
+                    <Button
+                      onClick={() =>
+                        handleCannelFriendReq(friendReq.receiver.id)
+                      }
+                      className="bg-red-500 hover:bg-red-400 hover:underline"
+                    >
+                      Hủy lời mời
+                    </Button>
+                  </div>
+                ))}
+                {sentFrReq?.length > 0 ? null : (
+                  <div>Chưa gửi lời mời kết bạn</div>
+                )}
+              </div>
+            </DialogContent>
+          </Dialog>
+        </div>
 
         <div className="mt-2 mb-4 mx-4 overflow-y-auto">
           {isLoading && <p>Loading...</p>}

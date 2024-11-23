@@ -15,6 +15,7 @@ import { Avatar, AvatarImage } from "@/components/ui/avatar";
 import Profile from "../../profile/profile";
 import { RefObject } from "react";
 import { useNavigate } from "react-router-dom";
+import focusPostStore from "@/store/focusPostStore";
 
 const Navbar = ({
   mainContentRef,
@@ -22,8 +23,17 @@ const Navbar = ({
   mainContentRef: RefObject<HTMLDivElement>;
 }) => {
   const { setPage, currentPage } = PhoneBookStore();
+  const { setFocusPost, setPost } = focusPostStore();
   const navigate = useNavigate();
   const { setRoom } = roomStore();
+
+  const handleNavigate = () => {
+    navigate("/profile", { state: { id: user.id } });
+  };
+
+  const handleNavigateHome = () => {
+    navigate("/home");
+  };
   const getUserFromCookies = () => {
     const user = Cookies.get("user");
     if (user) {
@@ -50,6 +60,8 @@ const Navbar = ({
   const handleSetHomepage = () => {
     setPage("home");
     setRoom(null);
+    setFocusPost(false);
+    setPost(null);
     if (mainContentRef.current) {
       mainContentRef.current.scrollTo({ top: 0, behavior: "smooth" });
     }
@@ -70,11 +82,16 @@ const Navbar = ({
           : "w-24 items-center bg-gray-300"
       }`}
     >
-      <Avatar className="bg-gray-400 flex justify-center items-center my-2">
+      <Avatar
+        onClick={handleSetHomepage}
+        className={`flex justify-center items-center cursor-pointer ${
+          user?.img === "src/asset/avatarDefault.svg" ? "bg-gray-400" : ""
+        } w-10 h-10 ${currentPage !== "home" ? "mt-5" : null}`}
+      >
         <AvatarImage
-          className="w-8 h-8"
-          src={user?.img || "src/asset/avatarDefault.svg"}
-          alt="Room Avatar"
+          className="w-full h-full rounded-full"
+          src={user?.img || "/src/asset/avatarDefault.svg"}
+          alt="User Avatar"
         />
       </Avatar>
       <div

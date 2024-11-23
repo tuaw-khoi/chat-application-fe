@@ -25,6 +25,8 @@ import useUploadImage from "@/hooks/useUploadImg";
 import { Textarea } from "@/components/ui/textarea";
 import { useState } from "react";
 import usePost from "@/hooks/usePost";
+import focusPostStore from "@/store/focusPostStore";
+import { useNavigate } from "react-router-dom";
 
 // Định nghĩa schema cho form
 const formSchema = z.object({
@@ -38,12 +40,18 @@ const formSchema = z.object({
 });
 
 const Post = () => {
+  const { setFocusPost } = focusPostStore();
   const userCookie = Cookies.get("user");
   const user = userCookie ? JSON.parse(userCookie) : "";
   const [img, setImg] = useState<string | null>(null);
   const { uploadImage, loading: uploadingImage, error } = useUploadImage();
   const { useCreatePost } = usePost();
   const { mutate: createPost } = useCreatePost();
+  const navigate = useNavigate();
+
+  const handleNavigate = () => {
+    navigate("/profile", { state: { id: user.id } });
+  };
 
   const [isDialogOpen, setIsDialogOpen] = useState(false); // Thêm state để theo dõi trạng thái dialog
 
@@ -67,6 +75,7 @@ const Post = () => {
     form.reset();
     setImg(null);
     setIsDialogOpen(false); // Đóng dialog sau khi submit
+    setFocusPost(false);
   };
 
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -83,10 +92,15 @@ const Post = () => {
   return (
     <div className="w-full h-32 px-8 rounded-2xl bg-white divide-y-2 space-y-2 shadow-md">
       <h1 className="pt-3">Đăng bài</h1>
-      <div className="flex items-center px-2 pr-3 py-2">
-        <Avatar className="bg-gray-400 flex justify-center items-center my-2">
+      <div className="flex items-center pr-3 py-4">
+        <Avatar
+          onClick={handleNavigate}
+          className={`flex justify-center items-center cursor-pointer ${
+            user?.img === "src/asset/avatarDefault.svg" ? "bg-gray-400" : ""
+          } w-10 h-10`}
+        >
           <AvatarImage
-            className="w-7 h-7"
+            className="w-full h-full rounded-full"
             src={user?.img || "/src/asset/avatarDefault.svg"}
             alt="User Avatar"
           />

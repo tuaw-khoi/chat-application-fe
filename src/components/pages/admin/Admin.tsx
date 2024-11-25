@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import useAuth from "@/hooks/useAuth";
 import Cookies from "js-cookie";
 import useAuthenStore from "@/store/authenStore";
+import AdminManager from "@/components/elements/manager/Admin";
 
 const Admin = () => {
   const { setAuthen, setIsAdmin } = useAuthenStore();
@@ -50,7 +51,7 @@ const Admin = () => {
     fetchUserData();
   }, [navigate, refreshLogin, setAuthen, setIsAdmin]);
 
-  return <div>Admin</div>;
+  return <AdminManager />;
 };
 
 export default Admin;

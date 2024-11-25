@@ -79,12 +79,22 @@ const useUser = () => {
       enabled: !!userId, // Chỉ gọi API nếu có userId
     });
 
+  const getManagerInfo = () =>
+    useQuery({
+      queryKey: ["managerInfo"],
+      queryFn: async () => {
+        const response = await AxiosClient.get("user");
+        return response.data;
+      },
+    });
+
   return {
     updateProfile,
     changePassword,
     searchNewFriend,
     getUserInfo,
     getUser,
+    getManagerInfo,
   };
 };
 

@@ -24,7 +24,7 @@ const ManagerPhoneBook = () => {
   return (
     <>
       <div className="w-1/5">
-        <h1 className="py-3">Quản lí danh bạ</h1>
+        <h1 className="py-3 ml-2">Quản lí danh bạ</h1>
         <div>
           <button
             className={`block w-full text-left p-2 mb-2 ${

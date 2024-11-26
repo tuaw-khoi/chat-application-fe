@@ -94,6 +94,7 @@ const usePost = () => {
         postId: string;
         updatePostDto: CreatePostDto;
       }) => {
+        console.log(updatePostDto);
         const response = await AxiosClient.put(
           `/posts/${postId}`,
           updatePostDto

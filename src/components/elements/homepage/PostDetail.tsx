@@ -35,14 +35,17 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Ellipsis } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import EditPost from "./EditPost";
+import { Modal } from "./Modal";
+import usePost from "@/hooks/usePost";
 
-interface PostDetailProps {
+export interface PostDetailProps {
   post: TPost;
   user: TUser;
   isExpanded: boolean;
   toggleExpand: (postId: string) => void;
 }
-interface PostDetailProps {
+export interface PostDetailProps {
   post: TPost;
   user: TUser;
 }
@@ -57,7 +60,8 @@ const PostDetail = ({
   toggleExpand,
 }: PostDetailProps) => {
   const navigate = useNavigate();
-
+  const { useDeletePost } = usePost();
+  const { mutate } = useDeletePost();
   const handleNavigate = (userId: string) => {
     navigate(`/profile/${userId}`);
   };
@@ -75,6 +79,15 @@ const PostDetail = ({
   );
   const [editingCommentId, setEditingCommentId] = useState<string | null>(null);
   const [editedComment, setEditedComment] = useState<string>("");
+  const [isEditOpen, setEditOpen] = useState(false);
+
+  const handleEditPost = () => {
+    setEditOpen(true);
+  };
+
+  const handleCloseEditPost = () => {
+    setEditOpen(false);
+  };
 
   const handleEdit = (commentId: string, defaultValue: string) => {
     setEditingCommentId(commentId);
@@ -181,35 +194,73 @@ const PostDetail = ({
       console.error("Error submitting comment:", error);
     }
   };
+
+  const handleDeletePost = (postId: string) => {
+    mutate(postId);
+  };
   return (
     <div key={post.id} className="p-4 border-b pb-8">
       {/* Post header with author's info */}
-      <div className="flex items-center mb-2">
-        <img
-          onClick={() => handleNavigate(post.author?.id)}
-          src={
-            post.author?.img === null
-              ? "https://res.cloudinary.com/dfua5nwki/image/upload/v1732396647/chat-app/nawccyq44xjqwf6lrcyy.svg"
-              : post.author?.img
-          }
-          alt={post.author?.fullname}
-          className="w-8 h-8 rounded-full cursor-pointer"
-        />
-        <div className="ml-3">
-          <div
+      <div className="flex items-center mb-2 justify-between">
+        <div className="flex items-center">
+          <img
             onClick={() => handleNavigate(post.author?.id)}
-            className="font-semibold hover:underline cursor-pointer"
-          >
-            {post.author?.fullname}
-          </div>
-          <div className="text-xs text-gray-500">
-            {format(new Date(post.createdAt), "dd MMM yyyy")}
+            src={
+              post.author?.img === null
+                ? "https://res.cloudinary.com/dfua5nwki/image/upload/v1732396647/chat-app/nawccyq44xjqwf6lrcyy.svg"
+                : post.author?.img
+            }
+            alt={post.author?.fullname}
+            className="w-8 h-8 rounded-full cursor-pointer"
+          />
+          <div className="ml-3">
+            <div
+              onClick={() => handleNavigate(post.author?.id)}
+              className="font-semibold hover:underline cursor-pointer"
+            >
+              {post.author?.fullname}
+            </div>
+            <div className="text-xs text-gray-500">
+              {format(new Date(post.createdAt), "dd MMM yyyy")}
+            </div>
           </div>
         </div>
+        {post.author.id === user.id ? (
+          <div className="">
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <div className="cursor-pointer py-1 px-2 rounded-2xl hover:bg-gray-200">
+                  <Ellipsis className="h-5 w-5" />
+                </div>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent>
+                <DropdownMenuItem
+                  onClick={() => handleDeletePost(post.id)}
+                  className="cursor-pointer"
+                >
+                  Xóa
+                </DropdownMenuItem>
+                <DropdownMenuItem
+                  className="cursor-pointer"
+                  onClick={handleEditPost}
+                >
+                  Chỉnh sửa
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
+        ) : null}
       </div>
+      {isEditOpen && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
+          <Modal onClose={handleCloseEditPost}>
+            <EditPost post={post} user={user} onClose={handleCloseEditPost} />
+          </Modal>
+        </div>
+      )}
 
       {/* Post content */}
-      <div className="text-gray-800 mb-2">
+      <div className="text-gray-800 mb-2 ml-1">
         {post?.content.length <= 500 || isExpanded
           ? post.content
           : `${post.content.substring(0, 500)}...`}
@@ -906,14 +957,14 @@ const PostDetail = ({
             <img
               onClick={() => handleCommentSubmit()}
               src="https://res.cloudinary.com/dfua5nwki/image/upload/v1732396722/chat-app/amg4wnurzmohynhkmgjl.svg"
-              className="h-7 mt-2 w-7 py-1 z-50 rounded-md right-1 bottom-1 absolute cursor-pointer opacity-50 pointer-events-none"
+              className="h-7 mt-2 w-7 py-1  rounded-md right-1 bottom-1 absolute cursor-pointer opacity-50 pointer-events-none z-10"
               alt="send message"
             />
           ) : (
             <img
               onClick={() => handleCommentSubmit()}
               src="https://res.cloudinary.com/dfua5nwki/image/upload/v1732397023/chat-app/qxa7dfnhq3vwxn8hlono.svg"
-              className="h-7 mt-2 w-7 py-1 z-50 rounded-md right-1 bottom-1 absolute cursor-pointer"
+              className="h-7 z-10 mt-2 w-7 py-1 z-50 rounded-md right-1 bottom-1 absolute cursor-pointer"
               alt="send message"
             />
           )}

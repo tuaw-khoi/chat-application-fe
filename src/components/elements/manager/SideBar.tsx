@@ -40,11 +40,11 @@ const SideBar = () => {
   };
   const user = getUserFromCookies();
   const handleLogout = () => {
-    Cookies.remove("token");
-    Cookies.remove("user");
-    Cookies.remove("refreshToken");
     setPage("home");
     navigate("/");
+    Cookies.remove("refreshToken");
+    Cookies.remove("token");
+    Cookies.remove("user");
   };
 
   const handlePageChange = (pageType: "dashboard" | "user") => {

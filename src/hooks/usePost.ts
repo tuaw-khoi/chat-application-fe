@@ -36,6 +36,7 @@ const usePost = () => {
         );
         return response.data;
       },
+      refetchInterval: 2000,
       staleTime: 60000,
       refetchOnWindowFocus: false,
     });

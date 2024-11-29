@@ -3,7 +3,6 @@ import Home from "./components/pages/home/Home";
 import Authentication from "./components/pages/Authentication";
 import Admin from "./components/pages/admin/Admin";
 import PersonProfile from "./components/pages/profile/PersonProfile";
-
 const router = createBrowserRouter([
   {
     path: "/",

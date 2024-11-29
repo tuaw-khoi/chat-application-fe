@@ -24,6 +24,28 @@ const useUser = () => {
     },
   });
 
+  const updateUser = useMutation({
+    mutationFn: async ({
+      id,
+      updateUserDto,
+    }: {
+      id: string;
+      updateUserDto: any;
+    }) => {
+      if (!id) {
+        throw new Error("User ID is required.");
+      }
+      const response = await AxiosClient.put(`user/${id}/user`, updateUserDto);
+      return response.data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["user", storedUser.id] });
+    },
+    onError: (error) => {
+      console.error("Error updating user:", error);
+    },
+  });
+
   const changePassword = useMutation({
     mutationFn: async (changePasswordDto: {
       currentPassword: string;
@@ -78,6 +100,21 @@ const useUser = () => {
       },
       enabled: !!userId, // Chỉ gọi API nếu có userId
     });
+  const getUserWithOutPassword = async (usernameOremail: string) => {
+    if (!usernameOremail) {
+      throw new Error("Username or email is required.");
+    }
+
+    try {
+      const response = await AxiosClient.post(`user/info`, {
+        usernameOremail,
+      });
+      return response.data;
+    } catch (error) {
+      console.error("Error fetching user data:", error);
+      throw error; // Propagate the error
+    }
+  };
 
   const getManagerInfo = () =>
     useQuery({
@@ -88,6 +125,27 @@ const useUser = () => {
       },
     });
 
+  const deleteUser = useMutation({
+    mutationFn: async (userId: string) => {
+      if (!userId) {
+        throw new Error("User ID is required.");
+      }
+      const response = await AxiosClient.delete(`user/${userId}`);
+      return response.data;
+    },
+    onSuccess: (_, userId) => {
+      // Invalidate user queries
+      console.log(userId);
+      queryClient.invalidateQueries({ queryKey: ["userWithoutPassword"] });
+      queryClient.invalidateQueries({ queryKey: ["managerInfo"] });
+      queryClient.invalidateQueries({ queryKey: ["userList"] }); // Cập nhật danh sách người dùng nếu có
+      queryClient.invalidateQueries({ queryKey: ["friends", userId] }); // Cập nhật danh sách bạn bè liên quan nếu cần
+    },
+    onError: (error) => {
+      console.error("Error deleting user:", error);
+    },
+  });
+
   return {
     updateProfile,
     changePassword,
@@ -95,6 +153,9 @@ const useUser = () => {
     getUserInfo,
     getUser,
     getManagerInfo,
+    getUserWithOutPassword,
+    deleteUser,
+    updateUser,
   };
 };
 

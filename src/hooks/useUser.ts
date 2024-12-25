@@ -2,11 +2,13 @@ import AxiosClient from "@/service/AxiosClient";
 import searchFoundStore from "@/store/userFoundStore";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import Cookies from "js-cookie";
+import useAuth from "./useAuth";
 const useUser = () => {
   const { setSearchUser } = searchFoundStore();
   const queryClient = useQueryClient();
   const userCookie = Cookies.get("user");
   const storedUser = userCookie ? JSON.parse(userCookie) : null;
+  const { refreshLogin } = useAuth();
 
   const updateProfile = useMutation({
     mutationFn: async (updateUserDto: any) => {
@@ -18,6 +20,13 @@ const useUser = () => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["user", storedUser.id] });
+      queryClient.invalidateQueries({
+        queryKey: ["managerInfo"],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ["userInfo"],
+      });
+      refreshLogin();
     },
     onError: (error) => {
       console.error("Error updating profile:", error);
@@ -135,7 +144,6 @@ const useUser = () => {
     },
     onSuccess: (_, userId) => {
       // Invalidate user queries
-      console.log(userId);
       queryClient.invalidateQueries({ queryKey: ["userWithoutPassword"] });
       queryClient.invalidateQueries({ queryKey: ["managerInfo"] });
       queryClient.invalidateQueries({ queryKey: ["userList"] }); // Cập nhật danh sách người dùng nếu có

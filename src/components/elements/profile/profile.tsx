@@ -60,7 +60,7 @@ const Profile = () => {
   );
   const [showPasswordForm, setShowPasswordForm] = useState(false);
   const { updateProfile, changePassword } = useUser();
-  const { toast } = useToast(); // Khởi tạo toast
+  const { toast } = useToast(); 
 
   // Khởi tạo form cập nhật thông tin
   const profileForm = useForm({

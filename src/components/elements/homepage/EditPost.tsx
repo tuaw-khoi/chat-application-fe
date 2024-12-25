@@ -1,4 +1,4 @@
-import { useForm, Controller } from "react-hook-form"; // Đảm bảo import useForm và Controller
+import { useForm } from "react-hook-form";
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -18,11 +18,12 @@ const EditPost = ({ post, user, onClose }: editPostDetailProps) => {
   const { useUpdatePost } = usePost();
   const { mutate } = useUpdatePost();
   const [image, setImage] = useState<string | null>(photos?.[0] || null);
-  const [privacy, setPrivacy] = useState<string>(isPublic.toString()); // Chế độ hiển thị
+  const [privacy, setPrivacy] = useState<string>(isPublic.toString());
   const {
     register,
     handleSubmit,
     reset,
+    setValue,
     watch,
     formState: { errors },
   } = useForm({
@@ -34,24 +35,42 @@ const EditPost = ({ post, user, onClose }: editPostDetailProps) => {
 
   const { uploadImage, loading: uploadingImage } = useUploadImage();
 
-  // Theo dõi sự thay đổi trong form
+  useEffect(() => {
+    if (post) {
+      reset({ content, isPublic: isPublic.toString() });
+      setImage(photos?.[0] || null);
+    }
+  }, [post, reset]);
+
+  useEffect(() => {
+    setValue("isPublic", privacy);
+  }, [privacy, setValue]);
+
   const formValues = watch();
+  const normalizeValue = (value: any) =>
+    value === null || value === "" ? null : value;
   const hasChanges =
     formValues.content !== content ||
     formValues.isPublic !== isPublic.toString() ||
-    (image !== photos?.[0] && image !== "");
-
-  console.log(photos?.[0]);
+    normalizeValue(image) !== normalizeValue(photos?.[0]);
 
   const handleAddImage = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      const uploadedImage = await uploadImage(file);
-      if (uploadedImage) {
-        setImage(uploadedImage.imageUrl);
+      try {
+        const uploadedImage = await uploadImage(file);
+        if (uploadedImage) {
+          setImage(uploadedImage.imageUrl);
+        } else {
+          alert("Tải ảnh thất bại. Vui lòng thử lại!");
+        }
+      } catch (error) {
+        console.error("Upload error:", error);
+        alert("Đã xảy ra lỗi khi tải ảnh!");
       }
     }
   };
+
 
   const handleRemoveImage = () => {
     setImage(null);
@@ -75,16 +94,10 @@ const EditPost = ({ post, user, onClose }: editPostDetailProps) => {
     onClose();
   };
 
-  useEffect(() => {
-    reset({ content, isPublic: isPublic.toString() });
-    setImage(photos?.[0] || null);
-  }, [post]);
-
   return (
     <div className="w-full max-w-2xl mx-auto bg-white p-6 shadow-lg rounded-lg z-50">
       <h2 className="text-xl font-semibold mb-4">Chỉnh sửa bài viết</h2>
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-        {/* Nội dung bài viết */}
         <div>
           <label htmlFor="content" className="block mb-2 text-gray-600">
             Nội dung bài viết
@@ -101,8 +114,6 @@ const EditPost = ({ post, user, onClose }: editPostDetailProps) => {
             <p className="text-sm text-red-500">{errors.content.message}</p>
           )}
         </div>
-
-        {/* Chế độ hiển thị */}
         <div>
           <label htmlFor="isPublic" className="block mb-2 text-gray-600">
             Chế độ hiển thị
@@ -128,8 +139,6 @@ const EditPost = ({ post, user, onClose }: editPostDetailProps) => {
             </button>
           </div>
         </div>
-
-        {/* Hình ảnh */}
         <div>
           <label className="block mb-2 text-gray-600">Hình ảnh</label>
           {image ? (
@@ -161,8 +170,6 @@ const EditPost = ({ post, user, onClose }: editPostDetailProps) => {
             </p>
           )}
         </div>
-
-        {/* Nút hành động */}
         <div className="flex justify-end space-x-4">
           <Button type="button" variant="secondary" onClick={handleCancel}>
             Hủy

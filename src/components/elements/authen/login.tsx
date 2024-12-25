@@ -22,6 +22,7 @@ import {
 import { Input } from "@/components/ui/input";
 import Google from "./google";
 import useAuth from "@/hooks/useAuth";
+import { useState } from "react";
 
 const formSchema = z.object({
   emailorusername: z.string().min(2, {
@@ -33,6 +34,7 @@ const formSchema = z.object({
 });
 const FormLogin = () => {
   const { login } = useAuth();
+  const [error, setError] = useState<string | null>(null);
   const form = useForm({
     mode: "onChange",
     resolver: zodResolver(formSchema),
@@ -42,9 +44,13 @@ const FormLogin = () => {
     },
   });
   const onSubmit = async (data: any) => {
-    login.mutate(data);
-    form.setValue("password", "");
-    form.setValue("emailorusername", "");
+    try {
+      await login.mutateAsync(data);
+      setError(null);
+      form.reset();
+    } catch (err: any) {
+      setError(err.message);
+    }
   };
   return (
     <div>
@@ -61,6 +67,7 @@ const FormLogin = () => {
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-2">
+              {error && <p className="text-red-500 text-sm">⚠ {error}</p>}
               <FormField
                 control={form.control}
                 name="emailorusername"
@@ -109,9 +116,9 @@ const FormLogin = () => {
         </form>
       </Form>
       <div className="bg-gray-200 divide-y "></div>
-      <div>
+      {/* <div>
         <Google />
-      </div>
+      </div> */}
     </div>
   );
 };

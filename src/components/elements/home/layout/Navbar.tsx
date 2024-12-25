@@ -13,7 +13,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarImage } from "@/components/ui/avatar";
 import Profile from "../../profile/profile";
-import { RefObject } from "react";
+import { RefObject, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import focusPostStore from "@/store/focusPostStore";
 
@@ -26,6 +26,24 @@ const Navbar = ({
   const { setFocusPost, setPost } = focusPostStore();
   const navigate = useNavigate();
   const { setRoom } = roomStore();
+   const [user, setUser] = useState(() => {
+     const userCookie = Cookies.get("user");
+     return userCookie ? JSON.parse(userCookie) : null;
+   });
+
+   useEffect(() => {
+     const interval = setInterval(() => {
+       const userCookie = Cookies.get("user");
+       if (userCookie) {
+         const parsedUser = JSON.parse(userCookie);
+         if (JSON.stringify(parsedUser) !== JSON.stringify(user)) {
+           setUser(parsedUser); // Cập nhật khi cookie thay đổi
+         }
+       }
+     }, 1000); // Kiểm tra cookie mỗi giây
+
+     return () => clearInterval(interval); // Xóa interval khi unmount
+   }, [user]);
 
   const handleNavigate = () => {
     navigate("/profile", { state: { id: user.id } });
@@ -34,21 +52,7 @@ const Navbar = ({
   const handleNavigateHome = () => {
     navigate("/home");
   };
-  const getUserFromCookies = () => {
-    const user = Cookies.get("user");
-    if (user) {
-      try {
-        return JSON.parse(user);
-      } catch (error) {
-        console.error("Error parsing user data from cookie", error);
-        return null;
-      }
-    }
-    return null;
-  };
-
-  // Sử dụng hàm
-  const user = getUserFromCookies();
+  
   const handleSetChat = () => {
     setPage("chat");
     setRoom(null);

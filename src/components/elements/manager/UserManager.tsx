@@ -5,12 +5,12 @@ import { useState } from "react";
 import UserSearch from "./UserSearch";
 
 const UserManager = () => {
-  const [searchValue, setSearchValue] = useState<string>(""); // Lưu giá trị người dùng nhập
-  const [submittedSearchValue, setSubmittedSearchValue] = useState<string>(""); // Lưu giá trị sau khi nhấn "Tìm kiếm"
-  const [refreshKey, setRefreshKey] = useState<number>(0); // Key để làm mới component con
+  const [searchValue, setSearchValue] = useState<string>("");
+  const [submittedSearchValue, setSubmittedSearchValue] = useState<string>(""); 
+  const [refreshKey, setRefreshKey] = useState<number>(0); 
 
   const handleSearch = () => {
-    setSubmittedSearchValue(searchValue); // Cập nhật giá trị gửi xuống UserSearch
+    setSubmittedSearchValue(searchValue); 
   };
 
   const handleRefresh = () => {
@@ -31,7 +31,7 @@ const UserManager = () => {
           className="w-full border-gray-300"
         />
         <Button
-          onClick={handleSearch} // Gọi khi nhấn nút
+          onClick={handleSearch}
           className="bg-blue-500 text-white hover:bg-blue-600"
         >
           Tìm kiếm

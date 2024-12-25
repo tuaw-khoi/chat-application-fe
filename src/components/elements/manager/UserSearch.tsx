@@ -54,9 +54,8 @@ const UserSearch = ({
     };
 
     fetchUserData();
-  }, [searchValue, refreshKey]); // Gọi lại khi `refreshKey` thay đổi
+  }, [searchValue, refreshKey]); 
 
-  // Kiểm tra nếu có thay đổi dữ liệu
   useEffect(() => {
     if (
       userData &&
@@ -75,7 +74,7 @@ const UserSearch = ({
     if (userData?.id) {
       try {
         await deleteUser.mutateAsync(userData.id);
-        onRefresh(); // Kích hoạt làm mới sau khi xóa
+        onRefresh();
       } catch (error) {
         console.error("Error deleting user:", error);
       }
@@ -90,9 +89,9 @@ const UserSearch = ({
           updateUserDto: updatedData,
         });
         setIsUpdated(true);
-        setTimeout(() => setIsUpdated(false), 2000); // Reset trạng thái sau 2 giây
-        setIsChanged(false); // Reset trạng thái thay đổi
-        onRefresh(); // Kích hoạt làm mới sau khi cập nhật
+        setTimeout(() => setIsUpdated(false), 2000);
+        setIsChanged(false); 
+        onRefresh();
       } catch (error) {
         console.error("Error updating user:", error);
       }

@@ -23,7 +23,7 @@ import {
 import Cookies from "js-cookie";
 import useUploadImage from "@/hooks/useUploadImg";
 import { Textarea } from "@/components/ui/textarea";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import usePost from "@/hooks/usePost";
 import focusPostStore from "@/store/focusPostStore";
 import { useNavigate } from "react-router-dom";
@@ -41,9 +41,12 @@ const formSchema = z.object({
 
 const Post = () => {
   const { setFocusPost } = focusPostStore();
-  const userCookie = Cookies.get("user");
-  const user = userCookie ? JSON.parse(userCookie) : "";
+  const [user, setUser] = useState(() => {
+    const userCookie = Cookies.get("user");
+    return userCookie ? JSON.parse(userCookie) : null;
+  });
   const [img, setImg] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement | null>(null); // Thêm ref
   const { uploadImage, loading: uploadingImage, error } = useUploadImage();
   const { useCreatePost } = usePost();
   const { mutate: createPost } = useCreatePost();
@@ -69,11 +72,14 @@ const Post = () => {
     const postForm = {
       content: data.textContent,
       isPublic: data.privacy,
-      photos: [data.imageUrl],
+      photos: [img || ""],
     };
     createPost(postForm);
     form.reset();
     setImg(null);
+    if (fileInputRef.current) {
+      fileInputRef.current.value = ""; // Reset giá trị của input file sau submit
+    }
     setIsDialogOpen(false); // Đóng dialog sau khi submit
     setFocusPost(false);
   };
@@ -88,6 +94,27 @@ const Post = () => {
       }
     }
   };
+
+  const handleRemoveImage = () => {
+    setImg(null);
+    if (fileInputRef.current) {
+      fileInputRef.current.value = ""; // Reset giá trị của input file
+    }
+  };
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      const userCookie = Cookies.get("user");
+      if (userCookie) {
+        const parsedUser = JSON.parse(userCookie);
+        if (JSON.stringify(parsedUser) !== JSON.stringify(user)) {
+          setUser(parsedUser); // Cập nhật khi cookie thay đổi
+        }
+      }
+    }, 1000); // Kiểm tra cookie mỗi giây
+
+    return () => clearInterval(interval); // Xóa interval khi unmount
+  }, [user]);
 
   return (
     <div className="w-full h-32 px-8 rounded-2xl bg-white divide-y-2 space-y-2 shadow-md">
@@ -106,14 +133,12 @@ const Post = () => {
           />
         </Avatar>
         <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-          {" "}
-          {/* Điều chỉnh trạng thái của dialog */}
           <DialogTrigger className="flex-grow">
             <Input
               type="text"
               placeholder={`${user.fullname} ơi, bạn đang nghĩ gì thế?`}
               className="cursor-pointer ml-2 rounded-2xl py-4 bg-gray-100"
-              onClick={() => setIsDialogOpen(true)} // Mở dialog khi click vào Input
+              onClick={() => setIsDialogOpen(true)}
             />
           </DialogTrigger>
           <DialogContent className="-mt-[20px]">
@@ -148,7 +173,7 @@ const Post = () => {
                         </SelectTrigger>
                         <SelectContent>
                           <SelectItem value="true">Bạn bè</SelectItem>
-                          <SelectItem value="flase">Chỉ mình tôi</SelectItem>
+                          <SelectItem value="false">Chỉ mình tôi</SelectItem>
                         </SelectContent>
                       </Select>
                     )}
@@ -170,18 +195,27 @@ const Post = () => {
                   type="file"
                   onChange={handleImageUpload}
                   accept="image/*"
-                  multiple
+                  ref={fileInputRef} // Thêm ref
                 />
                 {uploadingImage && (
                   <p className="text-sm text-gray-400">Đang tải ảnh lên...</p>
                 )}
                 {error && <p className="text-sm text-red-500">Lỗi: {error}</p>}
                 {img && (
-                  <img
-                    src={img}
-                    alt="Uploaded Preview"
-                    className="h-52 object-cover mt-4 rounded-lg object-center"
-                  />
+                  <div className="relative">
+                    <img
+                      src={img}
+                      alt="Uploaded Preview"
+                      className="h-52 w-full object-cover mt-4 rounded-lg object-center"
+                    />
+                    <button
+                      type="button"
+                      className="absolute top-4 right-0 bg-red-500 text-white rounded-full  px-2"
+                      onClick={handleRemoveImage} // Sử dụng hàm mới
+                    >
+                      X
+                    </button>
+                  </div>
                 )}
               </div>
               <Button

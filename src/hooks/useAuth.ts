@@ -45,7 +45,15 @@ const useAuth = () => {
         navigate("/home");
       }
     },
-    onError: (error: any) => console.error("Login error:", error),
+    onError: (error: any) => {
+      if (error.response && error.response.data) {
+        const errorMessage = "Đăng nhập thất bại.";
+        throw new Error(errorMessage);
+      } else {
+        console.error("Login error:", error);
+        throw new Error("Đã xảy ra lỗi không xác định.");
+      }
+    },
   });
 
   const register = useMutation({
